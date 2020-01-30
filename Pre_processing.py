@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sklearn.preprocessing as pp
+import csv
 
 #dataset = sns.load_dataset("credicard.csv")
 dataset = pd.read_csv('creditcard.csv') #Apro il Dataset come Panda DataFrame
@@ -14,6 +15,9 @@ frauds = len(dataset[dataset['Class'] == 1])
 non_fraud_indices = dataset[dataset.Class == 0].index
 fraud_indices = dataset[dataset.Class == 1].index
 
+
+#Imposto il seed della funzione random per rendere i numeri generati sempre gli stessi
+np.random.seed(9)
 #Prendo indici di non frodi randomicamente, ma ne scelgo lo stesso numero di quelli delle frodi, per bilanciamento
 random_indices = np.random.choice(non_fraud_indices, frauds, False)
 
@@ -46,3 +50,16 @@ for name_class in dataset.columns:
 
 if(preprocessing_status):
     print("Preprocessing eseguito correttamente")
+
+#Apro il ds iniziale
+with open("creditcard.csv") as original_dataset:
+    csvReader = list(csv.reader(original_dataset))
+    #Creo il nuovo ds
+    with open('creditcard_undersampled.csv', 'w') as new_dataset:
+        csvWriter = csv.writer(new_dataset)
+        csvWriter.writerow(csvReader[0]) #scrivo l'header
+        #Scrivo le nuove righe
+        for index in under_sample_indices:
+            csvWriter.writerow(csvReader[index])
+
+print("Nuovo dataset creato correttamente")
