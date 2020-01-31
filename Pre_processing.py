@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import sklearn.preprocessing as pp
 import csv
 
+from pyspark import mllib
+
 #dataset = sns.load_dataset("credicard.csv")
 dataset = pd.read_csv('creditcard.csv') #Apro il Dataset come Panda DataFrame
 
@@ -59,7 +61,7 @@ with open("creditcard.csv") as original_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) #scrivo l'header
         #Scrivo le nuove righe
-        for index in under_sample_indices:
-            csvWriter.writerow(csvReader[index])
+        new_rows = norm_sample.values.tolist()
+        csvWriter.writerows(new_rows)
 
 print("Nuovo dataset creato correttamente")
