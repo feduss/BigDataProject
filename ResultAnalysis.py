@@ -56,3 +56,5 @@ def resultAnalisys(labelsAndPredictions, elementNumber):
 
     # print('Learned classification tree model:')
     # print(model.toDebugString())
+
+    return testErr
