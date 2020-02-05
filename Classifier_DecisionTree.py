@@ -1,8 +1,7 @@
 from pyspark.mllib.tree import DecisionTree
-import ResultAnalysis
 
 
-#Metodo che computa il classificatore
+# Metodo che computa il classificatore
 # trainingData = inputdata
 # numClasses = numero di classi (nel nostro caso true e false, 0 e 1 )
 # categoricalFeaturesInfo = ?
@@ -28,4 +27,4 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, minInstanc
     labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
 
     # Richiamo la funzione per il calcolo dei risultati
-    return ResultAnalysis.resultAnalisys(labelsAndPredictions, float(testData.count()))
+    return labelsAndPredictions

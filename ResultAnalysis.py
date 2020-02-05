@@ -36,6 +36,8 @@ def resultAnalisys(labelsAndPredictions, elementNumber):
     # Calcolo dell'AUC, o Area Under ROC Curve
     AUC = metrics.auc(fpr, tpr)
 
+    results = Results(sensitivity, fallout, specificity, missRate, AUC, testErr)
+
     # Stampe varie
     print('Record del test set = ' + str(labelsAndPredictions.count()))
     print('Totali = ' + str(TP + TN + FP + FN) + '\n')
@@ -45,16 +47,26 @@ def resultAnalisys(labelsAndPredictions, elementNumber):
     print('False positives = ' + str(FP))
     print('False negatives = ' + str(FP) + '\n')
 
-    print('Sensitivity = ' + str(sensitivity * 100) + '%')
-    print('Miss rate = ' + str(missRate * 100) + '%\n')
+    print('Sensitivity = ' + str(results.sensitivity * 100) + '%')
+    print('Miss rate = ' + str(results.missRate * 100) + '%\n')
 
-    print('Specificity = ' + str(specificity * 100) + '%')
-    print('Fallout = ' + str(fallout * 100) + '%\n')
+    print('Specificity = ' + str(results.specificity * 100) + '%')
+    print('Fallout = ' + str(results.fallout * 100) + '%\n')
 
-    print('AUC = ' + str(AUC * 100) + '%')
-    print('Test Error = ' + str(testErr * 100) + '%')
+    print('AUC = ' + str(results.AUC * 100) + '%')
+    print('Test Error = ' + str(results.testErr * 100) + '%')
 
     # print('Learned classification tree model:')
     # print(model.toDebugString())
 
-    return testErr
+    return results
+
+
+class Results:
+    def __init__(self, sensitivity, fallout, specificity, missRate, AUC, testError):
+        self.sensitivity = float("{0:.4f}".format(sensitivity))
+        self.fallout = float("{0:.4f}".format(fallout))
+        self.specificity = float("{0:.4f}".format(specificity))
+        self.missRate = float("{0:.4f}".format(missRate))
+        self.AUC = float("{0:.4f}".format(AUC))
+        self.testErr = float("{0:.4f}".format(testError))
