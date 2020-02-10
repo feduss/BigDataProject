@@ -1,61 +1,34 @@
-from sklearn import metrics
-from sklearn.ensemble import RandomForestClassifier
-from pyspark.shell import sc
+from pyspark.mllib.tree import RandomForest
 
-import SetsCreation
+# Random Forest Classifier
+# numClasses = numero di classi (nel nostro caso true e false, 0 e 1 )
+# categoricalFeaturesInfo = ? (come per il decisionTree)
+# numTree = numero di alberi nella foresta
+# featureSubsetStrategy = featureSubsetStrategy Number of features to consider for splits at each node.
+#                         Supported: "auto", "all", "sqrt", "log2", "onethird". If "auto" is set, this parameter
+#                         is set based on numTrees
+#                         LINK:https://spark.apache.org/docs/1.4.0/api/java/org/apache/spark/mllib/tree/RandomForest.html
+# impurity = Criterio usato per il calcolo dell'information gain (default gini oppure esiste entropy)
+# maxDepth = profondità dell'albero
+# maxBins = numero di condizioni per lo splitting di un nodo ? (DA CAPIRE MEGLIO)
+# seed = Random seed for bootstrapping and choosing feature subsets.... ?
+# TODO cercare i valori dei parametri su google e scrivere il loro significato qui sopra
+'''
+impurity = ['gini', 'entropy']
+maxDepth = [5, 6, 7]
+maxBins = [32, 64, 128]
+numTrees = []
+'''
+def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, numClasses=2,
+                 categoricalFeaturesInfo={}, featureSubsetStrategy="auto", seed=None):
 
 
-def randomForest(trainingData, testData, n_estimators, criterion, max_depth, max_features):
+    model = RandomForest.trainClassifier(data = trainingData, numClasses= numClasses,
+                                         categoricalFeaturesInfo=categoricalFeaturesInfo,
+                                         numTrees=numTrees, featureSubsetStrategy=featureSubsetStrategy,
+                                         impurity= impurity, maxDepth=maxDepth, maxBins=maxBins, seed=seed)
 
-    # Creo il modello
-    # n_estimators = numero di alberi nella foresta | DEFAULT 100
-    # criterion = funzione per misurare la qualità dello split | DEFAULT gini
-    # max_depth = profondità max dell'albero | DEFAULT None
-    # min_samples_split = numero minimo di samples per splittare un nodo interno (?) | DEFAULT 2
-    # min_samples_leaf = numero minimo di samples essere considerata come foglia (?) | DEFAULT 1
-    # min_weight_fraction_leaf = la frazione di peso minimo dlla somma totale dei pesi per
-    #                            essere una foglia (?) | DEFAULT 0.
-    # max_features = il numero di feature da considerare quando si ricerca il miglior split | DEFAULT auto
-    # max_leaf_nodes = numero massimo di nodi foglia | DEFAULT None
-    # min_impurity_decrease = un nodo verrà splittato se lo split decrementerà l'impurità in maniera maggiore o uguale
-    #                         a questo valore | DEFAULT 0.
-    # min_impurity_split = un nodo verrà splittato se la sua impurità è sopra a questa soglia, altrimenti sarà
-    #                      una foglia | DEFAULT 1e-7
-    # bootstrap = true per usare i bootstrap samples, altrimenti usa l'intero ds per creare l'albero | DEFAULT True
-    # oob_score = true per usare gli out-of-bag (????) samples per stimare la precisione | DEFAULT False
-    # n_jobs = numero di jobs da eseguire in parallelo | DEFAUL None
-    # random_state = seed (credo) per il generatore di numeri random | DEFAULT None
-    # verbose = controlla la verbosita durante il fitting e il predicting | DEFAULT 0
-    # warm_start = true per riusare aspetti del precedente modello trainato con valori di parametri | DEFAULT False
-    # class_weight = peso associato ad ogni classe; se non dato, hanno lo stesso peso, pari ad 1 | DEFAUL None
-    # ccp_alpha = Complexity parameter used for Minimal Cost-Complexity Pruning. The subtree with the largest cost
-    #             complexity that is smaller than ccp_alpha will be chosen | DEFAULT 0.0, non dato
-    # max_samples = If bootstrap is True, the number of samples to draw from X to train each base estimator|DEFAULT None
+    predictions = model.predict(testData.map(lambda x: x.features))
+    labels_and_predictions = testData.map(lambda x: x.label).zip(predictions)
 
-    #Per il momento uso i parametri di default
-    model = RandomForestClassifier(n_estimators = n_estimators, criterion = criterion, max_depth = max_depth,
-                                   max_features = max_features)
-
-    training_features = trainingData.map(lambda x: x.features)
-    test_features = testData.map(lambda x: x.features)
-    training_classes = trainingData.map(lambda x: x.label)
-    test_classes = testData.map(lambda x: x.label)
-
-    # Traino il modello
-    model.fit(training_features.collect(), training_classes.collect())
-
-    test_pred = sc.parallelize(model.predict(test_features.collect()), test_classes.getNumPartitions())
-
-    # Converto test_classes nel tipo di rdd corretto (lo stesso di test_pred) --> E' un workaround
-    # Poichè la zip() richiede, citando : "the two RDDs have the same number of partitions and the same
-    #         number of elements in each partition"
-    x = sc.parallelize(test_classes.collect(), test_classes.getNumPartitions())
-
-    # Unisco le label e le predizioni
-    labelsAndPredictions = x.zip(test_pred)
-
-    return labelsAndPredictions
-
-# if __name__== "__main__":
-#    (trainingData, testData) = SetsCreation.setsCreation()
-#    randomForest(trainingData, testData, n_estimators = 100, criterion = 'gini', max_depth = None, max_features = 'auto')
+    return labels_and_predictions

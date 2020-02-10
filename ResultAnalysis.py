@@ -1,7 +1,7 @@
 from sklearn import metrics
 
 
-def resultAnalisys(labelsAndPredictions, elementNumber):
+def resultAnalisys(labelsAndPredictions, elementNumber, verbose):
 
     # Calcolo le quantità di true positives, true negatives, false positives e false negatives, dove:
     # True positives sono i record fraudolenti riconosciuti come tali
@@ -39,25 +39,26 @@ def resultAnalisys(labelsAndPredictions, elementNumber):
     results = Results(sensitivity, fallout, specificity, missRate, AUC, testErr)
 
     # Stampe varie
-    print('Record del test set = ' + str(labelsAndPredictions.count()))
-    print('Totali = ' + str(TP + TN + FP + FN) + '\n')
+    if(verbose):
+        print('Record del test set = ' + str(labelsAndPredictions.count()))
+        print('Totali = ' + str(TP + TN + FP + FN) + '\n')
 
-    print('True positives = ' + str(TP))
-    print('True negatives = ' + str(TN))
-    print('False positives = ' + str(FP))
-    print('False negatives = ' + str(FP) + '\n')
+        print('True positives = ' + str(TP))
+        print('True negatives = ' + str(TN))
+        print('False positives = ' + str(FP))
+        print('False negatives = ' + str(FP) + '\n')
 
-    print('Sensitivity = ' + str(results.sensitivity * 100) + '%')
-    print('Miss rate = ' + str(results.missRate * 100) + '%\n')
+        print('Sensitivity = ' + str(results.sensitivity * 100) + '%')
+        print('Miss rate = ' + str(results.missRate * 100) + '%\n')
 
-    print('Specificity = ' + str(results.specificity * 100) + '%')
-    print('Fallout = ' + str(results.fallout * 100) + '%\n')
+        print('Specificity = ' + str(results.specificity * 100) + '%')
+        print('Fallout = ' + str(results.fallout * 100) + '%\n')
 
-    print('AUC = ' + str(results.AUC * 100) + '%')
-    print('Test Error = ' + str(results.testErr * 100) + '%')
+        print('AUC = ' + str(results.AUC * 100) + '%')
+        print('Test Error = ' + str(results.testErr * 100) + '%')
 
-    # print('Learned classification tree model:')
-    # print(model.toDebugString())
+        # print('Learned classification tree model:')
+        # print(model.toDebugString())
 
     return results
 
