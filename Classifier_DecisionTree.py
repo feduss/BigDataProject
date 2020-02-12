@@ -1,6 +1,5 @@
 from pyspark.mllib.tree import DecisionTree
 
-
 # Metodo che computa il classificatore
 # trainingData = inputdata
 # numClasses = numero di classi (nel nostro caso true e false, 0 e 1 )
