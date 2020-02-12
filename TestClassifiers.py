@@ -5,6 +5,7 @@ import SetsCreation
 import Classifier_DecisionTree as cdt
 import Classifier_RandomForest_sklearn as crf_sk
 import Classifier_RandomForest as crf
+import Classifier_GradientBoostedTree as cgbt
 import ResultAnalysis as ra
 
 # File per testare diversi trainingset e testset sui classificatori implementati, fornendo diversi parametri
@@ -28,8 +29,10 @@ verbose = False #Per stampare o meno i risultati di tutti i test
 impurity = ['gini', 'entropy']
 maxDepth = [5, 6, 7]
 
-# Solo Decision Tree
+# Sia Decision Tree che Gradient Boosted Tree che Random Forest
 maxBins = [32, 64, 128]
+
+# Solo Decision Tree
 minInstancesPerNode = [1]
 minInfoGain = [0.0]
 
@@ -39,6 +42,11 @@ max_features = ['auto', 'sqrt', 'log2']
 
 #Solo Random Forest MLLib
 numTrees = [100, 200]
+
+#Solo Gradient Boosted
+loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
+numIterations = [50, 100]
+maxDepth2 = [3, 5]
 
 iter_count = 0
 max_count = 1 #Da aggiornare ogni volta in ogni for
@@ -168,10 +176,12 @@ with open('classifiers_results.csv', 'w') as result_file:
     j = -1
     k = -1
     l = -1
+    m = -1
     index_min_err = -1
     j_min_err = -1
     k_min_err = -1
     l_min_err = -1
+    m_min_err = -1
     testErrMin = 100
     iter_count = 0
 
@@ -220,11 +230,78 @@ with open('classifiers_results.csv', 'w') as result_file:
     # N.B. Può capitare che certi test ottengano lo stesso risultato, ma solo uno viene etichettato come migliore
     print("\nMiglior risultato RandomForestModel Sklearn : test " + str(index_min_err + 1))
     print("Impurity: " + impurity[j_min_err] + ", maxDepth: " + str(maxDepth[k_min_err]) + ", n_estimators: "
-          + str(n_estimators[l_min_err]) + ", max_features: " + max_features[m])
+          + str(n_estimators[l_min_err]) + ", max_features: " + max_features[m_min_err])
     print("Tasso di errore: " + str(testErrMin * 100) + "%")
     print('--------------------------------------------------\n')
 
-    #csvWriter.writerow()
+    csvWriter.writerow("#############################")
+
+    j = -1
+    k = -1
+    l = -1
+    m = -1
+    index_min_err = -1
+    j_min_err = -1
+    k_min_err = -1
+    l_min_err = -1
+    m_min_err = -1
+    testErrMin = 100
+    iter_count = 0
+
+    csvWriter.writerow(['Gradient Boosted tree'])
+    csvWriter.writerow(['Loss', 'Max_Depth', 'Max_Bins', 'Num_Iterations',
+                        'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
+                        'Test_Error', 'AUC'])
+
+    loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
+    maxDepth2 = [3, 5]
+    maxBins = [32, 64, 128]
+    numIterations = [50, 100]
+
+    # GRADIENT BOOSTED TREE
+    max_count = 35
+    for i in range(0, 35):
+        iter_count += 1
+        j = int(i / 12)
+        k = int(i / 6) % 2
+        l = int(i / 2) % 3
+        m = i % 2
+
+        if (verbose):
+            print("\n--------------------------------------------------\n")
+            print("Test " + str(i + 1) + " con loss: " + loss[j] + ", maxDepth: " + str(
+                maxDepth2[k]) + ", maxBins: "
+                  + str(maxBins[l]) + ", numIterations: " + str(numIterations[m]))
+        else:
+            sys.stdout.write(
+                '\rPercentuale completamento test GRBT: ' + str(int((iter_count / max_count) * 100)) + "%"),
+            sys.stdout.flush()
+
+        labelsAndPredictions = cgbt.gradientBoostedTrees(trainingData, testData, loss[j], numIterations[m], maxDepth2[k],
+                                                   maxBins[l])
+
+        results = ra.resultAnalisys(labelsAndPredictions, testRecordsNumber, verbose)
+
+        if results.testErr < testErrMin:
+            index_min_err = i
+            j_min_err = j
+            k_min_err = k
+            l_min_err = l
+            m_min_err = m
+            testErrMin = results.testErr
+
+        csvWriter.writerow([loss[j], str(maxDepth2[k]), str(maxBins[l]), str(numIterations[m]),
+                            str(results.sensitivity), str(results.fallout), str(results.specificity),
+                            str(results.missRate), str(results.testErr), str(results.AUC)])
+
+        # input("Premi invio per continuare...\n")
+
+    # N.B. Può capitare che certi test ottengano lo stesso risultato, ma solo uno viene etichettato come migliore
+    print("\nMiglior risultato GradientBoostedTree: test " + str(index_min_err + 1))
+    print("Loss: " + loss[j_min_err] + ", maxDepth: " + str(maxDepth2[k_min_err]) + ", maxBins: "
+          + str(maxBins[l_min_err]) + ", numIterations: " + str(numIterations[m_min_err]))
+    print("Tasso di errore: " + str(testErrMin * 100) + "%")
+    print('--------------------------------------------------\n')
 
 
 

@@ -9,7 +9,7 @@ from pyspark.mllib.tree import RandomForest
 #                         is set based on numTrees
 #                         LINK:https://spark.apache.org/docs/1.4.0/api/java/org/apache/spark/mllib/tree/RandomForest.html
 # impurity = Criterio usato per il calcolo dell'information gain (default gini oppure esiste entropy)
-# maxDepth = profondità dell'albero
+# maxDepth = profondità dei singoli alberi
 # maxBins = numero di condizioni per lo splitting di un nodo ? (DA CAPIRE MEGLIO)
 # seed = Random seed for bootstrapping and choosing feature subsets.... ?
 # TODO cercare i valori dei parametri su google e scrivere il loro significato qui sopra
@@ -29,6 +29,6 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                                          impurity= impurity, maxDepth=maxDepth, maxBins=maxBins, seed=seed)
 
     predictions = model.predict(testData.map(lambda x: x.features))
-    labels_and_predictions = testData.map(lambda x: x.label).zip(predictions)
+    labelsAndPredictions = testData.map(lambda x: x.label).zip(predictions)
 
-    return labels_and_predictions
+    return labelsAndPredictions
