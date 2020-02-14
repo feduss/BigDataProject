@@ -17,13 +17,13 @@ def resultAnalisys(labelsAndPredictions, elementNumber, verbose):
     testErr = (FP + FN) / elementNumber
 
     # Sensitivity = transazioni fraudolente riconosciute come tali sul totale di record etichettati come fraudolenti
-    sensitivity = TP / (TP + FN)
+    sensitivity = (0 if (TP + FN) == 0 else TP / (TP + FN))
     # Fallout = transazioni fraudolente riconosciute come legittime sul totale delle legittime
-    fallout = FP / (FP + TN)
+    fallout = (0 if (FP + TN) == 0 else FP / (FP + TN))
     # Specificity = transazioni legittime riconosciute come tali sul totale delle legittime
-    specificity = TN / (TN + FP)
+    specificity = (0 if (TN + FP) == 0 else TN / (TN + FP))
     # Miss rate = transazioni legittime riconosciute come fraudolente sul totale delle fraudolente
-    missRate = FN / (FN + TP)
+    missRate = (0 if (FN + TP) == 0 else FN / (FN + TP))
 
     # Calcolo la curva di ROC:
     # y_true = etichette originali dei record

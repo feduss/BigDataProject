@@ -11,7 +11,6 @@ import Classifier_MultilayerPerceptron as cmlp
 import ResultAnalysis as ra
 
 # File per testare diversi trainingset e testset sui classificatori implementati, fornendo diversi parametri
-# TODO rivedere formalizzazione training e test set
 (trainingData, testData) = SetsCreation.setsCreation()
 c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
 c_testData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
@@ -22,12 +21,13 @@ verbose = False  # Per stampare o meno i risultati di tutti i test
 # DecisionTree (libreria MLLib) = DT
 # RandomForest (libreria MLLib) = RFML
 # RandomForest (libreria SkLearn) = RFSL
-# GradientBoostedTree (libreria ML.classification) = GBT
-# Multilayer Perceptron (Libreria ML.classification) = MLC
+# GradientBoostedTree (libreria MLLib) = GBT
+# Multilayer Perceptron (libreria ML.classification) = MLC
 
 impurity = ['gini', 'entropy']  # DT, RFML, RFSL
 maxDepth = [5, 6, 7]            # DT, RFML, RFSL
 maxBins = [32, 64, 128]         # DT, RFML, GBT
+numIterations = [50, 100]       # GBT, MLC
 
 # Solo Decision Tree
 minInstancesPerNode = [1]
@@ -42,11 +42,12 @@ max_features = ['auto', 'sqrt', 'log2']
 
 # Solo Gradient Boosted
 loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
-numIterations = [50, 100]
 maxDepth2 = [3, 5]
 
 # Solo Multilayer Perceptron
-# TODO add variables
+layer = [[30, 10, 2], [30, 20, 2], [30, 20, 10, 2]]
+blockSize = [128, 256, 512]
+solver = ['l-bfgs', 'gd']
 
 # Contatori
 iter_count = 0
@@ -71,7 +72,7 @@ with open('classifiers_results.csv', 'w') as result_file:
 
         csvBestWriter.writerow(['Model', 'Index best test', 'Sensitivity', 'Fallout',
                                 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
-
+        '''
         csvWriter.writerow(['Decision_Tree MLLib'])
         csvWriter.writerow(['Impurity', 'Max_Depth', 'Max_Bins',
                             'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
@@ -84,7 +85,6 @@ with open('classifiers_results.csv', 'w') as result_file:
         # DECISION TREE MLLib
         max_count = 18
         for i in range(0, 18):
-            iter_count += 1
             j = 0 if i < 9 else 1  # impurity
             k = int(i/3) % 3       # maxDepth
             l = i % 3              # maxBins
@@ -112,8 +112,11 @@ with open('classifiers_results.csv', 'w') as result_file:
             csvWriter.writerow([impurity[j], str(maxDepth[k]), str(maxBins[l]),
                                 str(results.sensitivity), str(results.fallout), str(results.specificity),
                                 str(results.missRate), str(results.testErr), str(results.AUC)])
+                                
+            iter_count += 1
 
             # input("Premi invio per continuare...\n")
+            
         print("\nMiglior risultato DecisionTreeModel MLLib: test " + str(index_min_err + 1))
         print("Impurity: " + impurity[j_min_err] + ", maxDepth: " + str(maxDepth[k_min_err]) + ", maxBins:"
               + str(maxBins[l_min_err]) + ", minInstancesPerNode: 1, minInfoGain: 1 ")
@@ -148,7 +151,6 @@ with open('classifiers_results.csv', 'w') as result_file:
         # RANDOM FOREST MLLib
         max_count = 35
         for i in range(0, 35):
-            iter_count += 1
             j = 0 if i < 18 else 1  # impurity
             k = int(i / 6) % 3      # maxDepth
             l = int(i / 3) % 2      # maxBins
@@ -178,6 +180,8 @@ with open('classifiers_results.csv', 'w') as result_file:
             csvWriter.writerow([impurity[j], str(maxDepth[k]), str(maxBins[m]), str(numTrees[l]),
                                 str(results.sensitivity), str(results.fallout), str(results.specificity),
                                 str(results.missRate), str(results.testErr), str(results.AUC)])
+                                
+            iter_count += 1
 
             # input("Premi invio per continuare...\n")
 
@@ -218,7 +222,6 @@ with open('classifiers_results.csv', 'w') as result_file:
         # RANDOM FOREST Sklearn
         max_count = 35
         for i in range(0, 35):
-            iter_count += 1
             j = 0 if i < 18 else 1  # impurity
             k = int(i/6) % 3        # maxDepth
             l = int(i/3) % 2        # n_estimators
@@ -248,6 +251,8 @@ with open('classifiers_results.csv', 'w') as result_file:
             csvWriter.writerow([impurity[j], str(maxDepth[k]), str(n_estimators[l]), str(max_features[m]),
                                 str(results.sensitivity), str(results.fallout), str(results.specificity),
                                 str(results.missRate), str(results.testErr), str(results.AUC)])
+                                
+            iter_count += 1
 
             # input("Premi invio per continuare...\n")
 
@@ -288,7 +293,6 @@ with open('classifiers_results.csv', 'w') as result_file:
         # GRADIENT BOOSTED TREE ML.classification
         max_count = 35
         for i in range(0, 35):
-            iter_count += 1
             j = int(i / 12)     # loss
             k = int(i / 6) % 2  # maxDepth2
             l = int(i / 2) % 3  # maxBins
@@ -320,6 +324,8 @@ with open('classifiers_results.csv', 'w') as result_file:
             csvWriter.writerow([loss[j], str(maxDepth2[k]), str(maxBins[l]), str(numIterations[m]),
                                 str(results.sensitivity), str(results.fallout), str(results.specificity),
                                 str(results.missRate), str(results.testErr), str(results.AUC)])
+                                
+            iter_count += 1
 
             # input("Premi invio per continuare...\n")
 
@@ -334,8 +340,8 @@ with open('classifiers_results.csv', 'w') as result_file:
                                 result_min.specificity, result_min.missRate, result_min.testErr, result_min.AUC])
 
         csvWriter.writerow(['#############################'])
+        '''
 
-'''
         j = -1
         k = -1
         l = -1
@@ -349,63 +355,67 @@ with open('classifiers_results.csv', 'w') as result_file:
         iter_count = 0
 
         csvWriter.writerow(['Multilayer Perceptron'])
-        csvWriter.writerow(['?',  # TODO colonne dei parametri nel CSV
+        csvWriter.writerow(['Max_Iter', 'Layer', 'Block_Size', 'Solver',
                             'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
                             'Test_Error', 'AUC'])
 
-        # TODO inserire parametri
+        # maxIter (numIterations) = [50, 100]
+        # layer = [[30, 10, 2], [30, 20, 2], [30, 20, 10, 2]]
+        # blockSize = [128, 256, 512]
+        # solver = ['l-bfgs', 'gd']
+
 
         # MULTILAYER PERCEPTRON ML.classification
-        max_count = 1  # TODO maxCount
-        for i in range(0, 1):  # TODO range
-            iter_count += 1
-            j = int(i / 12)     # ?
-            k = int(i / 6) % 2  # ?
-            l = int(i / 2) % 3  # ?
-            m = i % 2           # ?
+        max_count = 35
+        for i in range(0, 35):
+            j = int(i / 18)     # numIterator
+            k = int(i / 6) % 3  # layer
+            l = int(i / 2) % 3  # blockSize
+            m = i % 2           # solver
 
             if (verbose):
-                print("\n--------------------------------------------------\n")  # TODO edit print
-                print("Test " + str(i + 1) + " con loss: " + loss[j] + ", maxDepth: " + str(maxDepth2[k])
-                      + ", maxBins: " + str(maxBins[l]) + ", numIterations: " + str(numIterations[m]))
+                print("\n--------------------------------------------------\n")
+                print("Test " + str(i + 1) + " con maxIter: " + str(numIterations[j]) + ", layer: " + str(layer[k])
+                      + ", blockSize: " + str(blockSize[l]) + ", solver: " + solver[m])
             else:
                 sys.stdout.write(
                     '\rPercentuale completamento test MLP: ' + str(int((iter_count / max_count) * 100)) + "%"),
                 sys.stdout.flush()
 
-            labelsAndPredictions = cmlp.multilayerPerceptron(c_trainingData, c_testData, loss[j], numIterations[m],
-                                                             maxDepth2[k], maxBins[l])  # TODO edit parametri
+            labelsAndPredictions = cmlp.multilayerPerceptron(trainingData, testData, numIterations[j], layer[k],
+                                                             blockSize[l], solver[m])
+
+            # x = labelsAndPredictions.collect()
 
             results = ra.resultAnalisys(labelsAndPredictions, testRecordsNumber, verbose)
 
             if results.testErr < result_min.testErr:
                 index_min_err = i
                 j_min_err = j
-                k_min_err = k
                 l_min_err = l
+                k_min_err = k
                 m_min_err = m
                 result_min = results
 
-            # TODO edit writerow con i parametri correnti
-            csvWriter.writerow([None,
+            csvWriter.writerow([str(numIterations[j]), str(layer[k]), str(blockSize[l]), solver[m],
                                 str(results.sensitivity), str(results.fallout), str(results.specificity),
                                 str(results.missRate), str(results.testErr), str(results.AUC)])
+
+
+            iter_count += 1
 
             # input("Premi invio per continuare...\n")
 
         # N.B. Può capitare che certi test ottengano lo stesso risultato, ma solo uno viene etichettato come migliore
         print("\nMiglior risultato Multilayer Perceptron: test " + str(index_min_err + 1))
 
-        # TODO edit print
-        print("Loss: " + loss[j_min_err] + ", maxDepth: " + str(maxDepth2[k_min_err]) + ", maxBins: "
-              + str(maxBins[l_min_err]) + ", numIterations: " + str(numIterations[m_min_err]))
+        print("maxIter: " + str(numIterations[j_min_err]) + ", layer: " + str(layer[k_min_err]) + ", blockSize: "
+              + str(blockSize[l_min_err]) + ", solver: " + solver[m_min_err])
 
         print("Tasso di errore: " + str(result_min.testErr * 100) + "%")
         print('--------------------------------------------------\n')
 
-        # TODO edit bestWriter
         csvBestWriter.writerow(['Multilayer Perceptron', index_min_err, result_min.sensitivity, result_min.fallout,
                                 result_min.specificity, result_min.missRate, result_min.testErr, result_min.AUC])
 
         csvWriter.writerow(['#############################'])
-'''

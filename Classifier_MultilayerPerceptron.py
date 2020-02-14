@@ -1,3 +1,4 @@
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml.linalg import Vectors
 from pyspark.shell import sc
 import SetsCreation
@@ -15,15 +16,10 @@ from pyspark.ml.classification import MultilayerPerceptronClassifier
 # stepSize = Step size to be used for each iteration of optimization
 # solver = The solver algorithm for optimization. Supported options: l-bfgs, gd
 # initialWeights = he initial weights of the model
-def multilayerPerceptron(trainingData, testData, maxIter=100, layers=None, blockSize=128, seed=None,
+def multilayerPerceptron(trainingData, testData, maxIter=100, layers=None, blockSize=128, solver="l-bfgs", seed=None,
                          featuresCol="features", labelCol="label", predictionCol="prediction", tol=1e-6, stepSize=0.03,
-                         solver="l-bfgs", initialWeights=None, probabilityCol="probability",
+                         initialWeights=None, probabilityCol="probability",
                          rawPredictionCol="rawPrediction"):
-
-    # specify layers for the neural network:
-    # input layer of size 4 (features), two intermediate of size 5 and 4
-    # and output of size 3 (classes)
-    layers = [4, 5, 4, 3]
 
     # Creo il classificatore
     trainer = MultilayerPerceptronClassifier(maxIter=maxIter, layers=layers, blockSize=blockSize, solver=solver)
@@ -44,11 +40,10 @@ def multilayerPerceptron(trainingData, testData, maxIter=100, layers=None, block
 
     testData = testFeatures.map(lambda x: Vectors.dense(x)).zip(testLabels).toDF(schema=['features', 'label'])
 
-    # compute accuracy on the test set
+    # Calcolo le predizioni
     result = model.transform(testData)
-    labelsAndPredictions = result.select("prediction", "label")
-    x = 0
 
-if __name__ == '__main__' :
-    (trainingData, testData, c_trainingData, c_testData) = SetsCreation.setsCreation()
-    multilayerPerceptron(trainingData, testData, 100, None, 128)
+    #Converto i risultati nel formato corretto
+    labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
+
+    return labelsAndPredictions

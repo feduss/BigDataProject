@@ -12,13 +12,8 @@ from pyspark.mllib.tree import RandomForest
 # maxDepth = profondità dei singoli alberi
 # maxBins = numero di condizioni per lo splitting di un nodo ? (DA CAPIRE MEGLIO)
 # seed = Random seed for bootstrapping and choosing feature subsets.... ?
-# TODO cercare i valori dei parametri su google e scrivere il loro significato qui sopra
-'''
-impurity = ['gini', 'entropy']
-maxDepth = [5, 6, 7]
-maxBins = [32, 64, 128]
-numTrees = []
-'''
+
+
 def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, numClasses=2,
                  categoricalFeaturesInfo={}, featureSubsetStrategy="auto", seed=None):
 
