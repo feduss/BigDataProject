@@ -1,46 +1,40 @@
-from sklearn import metrics
+from pyspark.mllib.evaluation import BinaryClassificationMetrics as metrics
 
 
-def resultAnalisys(labelsAndPredictions, elementNumber, verbose):
-
+def resultAnalisys(predictionsAndLabels, elementNumber, verbose):
     # Calcolo le quantità di true positives, true negatives, false positives e false negatives, dove:
     # True positives sono i record fraudolenti riconosciuti come tali
     # True negatives sono quelli legittimi riconosciuti come tali
     # False positives sono quelli fraudolenti riconosciuti come legittimi
     # False negatives son quelli legittimi etichettati come fraudolenti
-    TP = labelsAndPredictions.filter(lambda v_p: v_p[0] == v_p[1] and v_p[0] == 1).count()
-    TN = labelsAndPredictions.filter(lambda v_p: v_p[0] == v_p[1] and v_p[0] == 0).count()
-    FP = labelsAndPredictions.filter(lambda v_p: v_p[0] != v_p[1] and v_p[0] == 1).count()
-    FN = labelsAndPredictions.filter(lambda v_p: v_p[0] != v_p[1] and v_p[0] == 0).count()
+    TP = predictionsAndLabels.filter(lambda v_p: v_p[0] == v_p[1] and v_p[1] == 1).count()
+    TN = predictionsAndLabels.filter(lambda v_p: v_p[0] == v_p[1] and v_p[1] == 0).count()
+    FP = predictionsAndLabels.filter(lambda v_p: v_p[0] != v_p[1] and v_p[1] == 1).count()
+    FN = predictionsAndLabels.filter(lambda v_p: v_p[0] != v_p[1] and v_p[1] == 0).count()
 
     # Calcolo l'errore dividendo il numero di predizioni sbagliate per il numero di dati
     testErr = (FP + FN) / elementNumber
 
     # Sensitivity = transazioni fraudolente riconosciute come tali sul totale di record etichettati come fraudolenti
     sensitivity = (0 if (TP + FN) == 0 else TP / (TP + FN))
+
     # Fallout = transazioni fraudolente riconosciute come legittime sul totale delle legittime
     fallout = (0 if (FP + TN) == 0 else FP / (FP + TN))
+
     # Specificity = transazioni legittime riconosciute come tali sul totale delle legittime
     specificity = (0 if (TN + FP) == 0 else TN / (TN + FP))
+
     # Miss rate = transazioni legittime riconosciute come fraudolente sul totale delle fraudolente
     missRate = (0 if (FN + TP) == 0 else FN / (FN + TP))
 
-    # Calcolo la curva di ROC:
-    # y_true = etichette originali dei record
-    # y_score = predizioni dei record
-    # pos_label = valore della classe positiva nelle etichette valutate
-    y_true = labelsAndPredictions.keys().collect()
-    y_score = labelsAndPredictions.values().collect()
-    (fpr, tpr, thresholds) = metrics.roc_curve(y_true=y_true, y_score=y_score, pos_label=1)
-
-    # Calcolo dell'AUC, o Area Under ROC Curve
-    AUC = metrics.auc(fpr, tpr)
+    # Calcolo la curva di ROC
+    AUC = metrics(predictionsAndLabels).areaUnderROC
 
     results = Results(sensitivity, fallout, specificity, missRate, AUC, testErr)
 
     # Stampe varie
     if(verbose):
-        print('Record del test set = ' + str(labelsAndPredictions.count()))
+        print('Record del test set = ' + str(predictionsAndLabels.count()))
         print('Totali = ' + str(TP + TN + FP + FN) + '\n')
 
         print('True positives = ' + str(TP))

@@ -4,6 +4,7 @@ from pyspark.shell import sc
 import SetsCreation
 from pyspark.ml.classification import MultilayerPerceptronClassifier
 
+
 # Parametri:
 # Tutti quelli che finiscono per Col sono nomi di colonna
 # maxIter = numero massimo di iterazioni | DEFAULT 100
@@ -24,11 +25,11 @@ def multilayerPerceptron(trainingData, testData, maxIter=100, layers=None, block
     # Creo il classificatore
     trainer = MultilayerPerceptronClassifier(maxIter=maxIter, layers=layers, blockSize=blockSize, solver=solver)
 
-    #Separo le classi (label) dalle features per il trainingSet
+    # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
     trainingFeatures = trainingData.map(lambda x: x[:30])
 
-    #creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
+    # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
     trainingData = trainingFeatures.map(lambda x: Vectors.dense(x)).zip(trainingLabels).toDF(schema=['features','label'])
 
     # Traino il model
@@ -43,7 +44,8 @@ def multilayerPerceptron(trainingData, testData, maxIter=100, layers=None, block
     # Calcolo le predizioni
     result = model.transform(testData)
 
-    #Converto i risultati nel formato corretto
-    labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
+    # Converto i risultati nel formato corretto
+    #labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
+    predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
 
-    return labelsAndPredictions
+    return predictionsAndLabels

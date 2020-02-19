@@ -44,7 +44,7 @@ def randomForest(trainingData, testData, n_estimators, criterion, max_depth, max
     # Traino il modello
     model.fit(training_features.collect(), training_classes.collect())
 
-    test_pred = sc.parallelize(model.predict(test_features.collect()), test_classes.getNumPartitions())
+    test_pred = sc.parallelize(model.predict(test_features.collect()), test_classes.getNumPartitions()).map(lambda x: float(x))
 
     # Converto test_classes nel tipo di rdd corretto (lo stesso di test_pred) --> E' un workaround
     # Poichè la zip() richiede, citando : "the two RDDs have the same number of partitions and the same
@@ -52,9 +52,10 @@ def randomForest(trainingData, testData, n_estimators, criterion, max_depth, max
     x = sc.parallelize(test_classes.collect(), test_classes.getNumPartitions())
 
     # Unisco le label e le predizioni
-    labelsAndPredictions = x.zip(test_pred)
+    predictionsAndLabels = test_pred.zip(x)
+    #labelsAndPredictions = x.zip(test_pred)
 
-    return labelsAndPredictions
+    return predictionsAndLabels
 
 # if __name__== "__main__":
 #    (trainingData, testData) = SetsCreation.setsCreation()

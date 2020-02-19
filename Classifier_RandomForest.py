@@ -24,6 +24,8 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                                          impurity= impurity, maxDepth=maxDepth, maxBins=maxBins, seed=seed)
 
     predictions = model.predict(testData.map(lambda x: x.features))
-    labelsAndPredictions = testData.map(lambda x: x.label).zip(predictions)
 
-    return labelsAndPredictions
+    predictionsAndLabels = predictions.zip(testData.map(lambda data: data.label))
+    #labelsAndPredictions = testData.map(lambda x: x.label).zip(predictions)
+
+    return predictionsAndLabels

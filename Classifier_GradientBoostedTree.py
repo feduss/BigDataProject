@@ -2,6 +2,7 @@ from pyspark.shell import sc
 import SetsCreation
 from pyspark.mllib.tree import GradientBoostedTrees
 
+
 # Parametri:
 # categoricalFeaturesInfo = ? (come per il decisionTree)
 # loss = tipo di funzione utilizzata durante il processo di gradient boosting (il miglioramento, perchè, a partire da
@@ -19,7 +20,10 @@ def gradientBoostedTrees(trainingData, testData, loss="logLoss", numIterations=1
     #         (b) Use more iterations in practice.
     model = GradientBoostedTrees.trainClassifier(trainingData, categoricalFeaturesInfo, loss, numIterations,
                                                  learningRate, maxDepth, maxBins)
-    predictions = model.predict(testData.map(lambda x: x.features))
-    labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
 
-    return labelsAndPredictions
+    predictions = model.predict(testData.map(lambda x: x.features))
+
+    #labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
+    predictionsAndLabels = predictions.zip(testData.map(lambda data: data.label))
+
+    return predictionsAndLabels

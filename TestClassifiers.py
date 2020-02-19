@@ -1,5 +1,6 @@
 import csv
 import sys
+import time
 
 import SetsCreation
 from pyspark.mllib.regression import LabeledPoint
@@ -11,7 +12,7 @@ import Classifier_MultilayerPerceptron as cmlp
 import ResultAnalysis as ra
 
 verbose = False  # Per stampare o meno i risultati di tutti i test
-multiplier = 2   # Ripetizioni del singolo test
+multiplier = 1   # Ripetizioni del singolo test
 
 # File per testare diversi trainingset e testset sui classificatori implementati, fornendo diversi parametri
 datas = SetsCreation.setsCreation(multiplier)
@@ -75,7 +76,7 @@ with open('classifiers_results.csv', 'w') as result_file:
         csvWriter.writerow(['Decision_Tree MLLib'])
         csvWriter.writerow(['Iteration', 'Impurity', 'Max_Depth', 'Max_Bins',
                             'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
-                            'Test_Error', 'AUC'])
+                            'Test_Error', 'AUC', 'Exec_Time'])
 
         # impurity = ['gini', 'entropy']
         # maxDepth = [5, 6, 7]
@@ -102,13 +103,15 @@ with open('classifiers_results.csv', 'w') as result_file:
 
                 (trainingData, testData) = datas[t]
                 c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-                c_testData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
+                c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
                 testRecordsNumber = float(testData.count())
 
-                labelsAndPredictions = cdt.decisionTree(c_trainingData, c_testData, impurity[j], maxDepth[k], maxBins[l],
-                                                        minInstancesPerNode[0], minInfoGain[0])
+                start_time = time.time()
+                predictionsAndLabels = cdt.decisionTree(c_trainingData, c_testData, impurity[j], maxDepth[k],
+                                                        maxBins[l], minInstancesPerNode[0], minInfoGain[0])
+                end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(labelsAndPredictions, testRecordsNumber, verbose)
+                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -121,7 +124,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
                                     impurity[j], str(maxDepth[k]), str(maxBins[l]),
                                     str(results.sensitivity), str(results.fallout), str(results.specificity),
-                                    str(results.missRate), str(results.testErr), str(results.AUC)])
+                                    str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
 
             # input("Premi invio per continuare...\n")
             
@@ -180,13 +183,15 @@ with open('classifiers_results.csv', 'w') as result_file:
 
                 (trainingData, testData) = datas[t]
                 c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-                c_testData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
+                c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
                 testRecordsNumber = float(testData.count())
 
-                labelsAndPredictions = crf.randomForest(c_trainingData, c_testData, impurity[j], maxDepth[k], maxBins[m],
-                                                        numTrees[l])
+                start_time = time.time()
+                predictionsAndLabels = crf.randomForest(c_trainingData, c_testData, impurity[j], maxDepth[k],
+                                                        maxBins[m], numTrees[l])
+                end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(labelsAndPredictions, testRecordsNumber, verbose)
+                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -200,7 +205,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
                                     impurity[j], str(maxDepth[k]), str(maxBins[m]), str(numTrees[l]),
                                     str(results.sensitivity), str(results.fallout), str(results.specificity),
-                                    str(results.missRate), str(results.testErr), str(results.AUC)])
+                                    str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
 
             # input("Premi invio per continuare...\n")
 
@@ -262,13 +267,15 @@ with open('classifiers_results.csv', 'w') as result_file:
 
                 (trainingData, testData) = datas[t]
                 c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-                c_testData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
+                c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
                 testRecordsNumber = float(testData.count())
 
-                labelsAndPredictions = crf_sk.randomForest(c_trainingData, c_testData, n_estimators[l], impurity[j],
+                start_time = time.time()
+                predictionsAndLabels = crf_sk.randomForest(c_trainingData, c_testData, n_estimators[l], impurity[j],
                                                            maxDepth[k], max_features[m])
+                end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(labelsAndPredictions, testRecordsNumber, verbose)
+                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -282,7 +289,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
                                     impurity[j], str(maxDepth[k]), str(n_estimators[l]), str(max_features[m]),
                                     str(results.sensitivity), str(results.fallout), str(results.specificity),
-                                    str(results.missRate), str(results.testErr), str(results.AUC)])
+                                    str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
 
             # input("Premi invio per continuare...\n")
 
@@ -344,13 +351,15 @@ with open('classifiers_results.csv', 'w') as result_file:
 
                 (trainingData, testData) = datas[t]
                 c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-                c_testData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
+                c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
                 testRecordsNumber = float(testData.count())
 
-                labelsAndPredictions = cgbt.gradientBoostedTrees(c_trainingData, c_testData, loss[j], numIterations[m],
+                start_time = time.time()
+                predictionsAndLabels = cgbt.gradientBoostedTrees(c_trainingData, c_testData, loss[j], numIterations[m],
                                                                  maxDepth2[k], maxBins[l])
+                end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(labelsAndPredictions, testRecordsNumber, verbose)
+                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -364,7 +373,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
                                     loss[j], str(maxDepth2[k]), str(maxBins[l]), str(numIterations[m]),
                                     str(results.sensitivity), str(results.fallout), str(results.specificity),
-                                    str(results.missRate), str(results.testErr), str(results.AUC)])
+                                    str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
 
             # input("Premi invio per continuare...\n")
 
@@ -428,12 +437,14 @@ with open('classifiers_results.csv', 'w') as result_file:
                 (trainingData, testData) = datas[t]
                 testRecordsNumber = float(testData.count())
 
-                labelsAndPredictions = cmlp.multilayerPerceptron(trainingData, testData, numIterations[j], layer[k],
+                start_time = time.time()
+                predictionsAndLabels = cmlp.multilayerPerceptron(trainingData, testData, numIterations[j], layer[k],
                                                                  blockSize[l], solver[m])
+                end_time = float("{0:.3f}".format(time.time() - start_time))
 
                 # x = labelsAndPredictions.collect()
 
-                results = ra.resultAnalisys(labelsAndPredictions, testRecordsNumber, verbose)
+                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -447,7 +458,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
                                     str(numIterations[j]), str(layer[k]), str(blockSize[l]), solver[m],
                                     str(results.sensitivity), str(results.fallout), str(results.specificity),
-                                    str(results.missRate), str(results.testErr), str(results.AUC)])
+                                    str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
 
             # input("Premi invio per continuare...\n")
 

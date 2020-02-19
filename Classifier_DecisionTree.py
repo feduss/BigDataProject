@@ -23,7 +23,8 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, minInstanc
     predictions = model.predict(testData.map(lambda x: x.features))
 
     # Unisco le label e le predizioni
-    labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
+    # labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
+    predictionsAndLabels = predictions.zip(testData.map(lambda data: data.label))
 
     # Richiamo la funzione per il calcolo dei risultati
-    return labelsAndPredictions
+    return predictionsAndLabels
