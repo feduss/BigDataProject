@@ -1,12 +1,19 @@
+import time
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sklearn.preprocessing as pp
 import csv
 
-from pyspark import mllib
+from pyspark import mllib, Row
 
 # dataset = sns.load_dataset("credicard.csv")
+from pyspark.mllib.feature import StandardScaler
+from pyspark.mllib.linalg import Vectors
+from pyspark.shell import spark, sc
+from pyspark.sql import functions as F
+
 dataset = pd.read_csv('creditcard.csv') #Apro il Dataset come Panda DataFrame
 
 # Calcolo il numero di frodi e non frodi presenti
@@ -29,11 +36,12 @@ under_sample_indices = np.concatenate([fraud_indices, random_indices])
 # Ottengo il nuovo dataset undersampled
 under_sample = dataset.loc[under_sample_indices]
 
-norm_sample = under_sample
-
-preprocessing_status = True
-
+# Metodo 1
 # Normalizzo i dati delle colonne delle transazioni (V1, V2, ...)
+
+start_time = time.time()
+under_sample = dataset.loc[under_sample_indices].sort_values('Time')
+norm_sample = under_sample
 for name_class in dataset.columns:
     if str(name_class).startswith("V"):
         print ("Colonna:" + name_class, end="\r")
@@ -47,21 +55,73 @@ for name_class in dataset.columns:
         if(max_value > 1.1 or min_value < -1.1):
             print("La colonna " + name_class + " non è normalizzata")
             print("Valore max: " + str(max_value) +", valore min: " + str(min_value))
-            preprocessing_status = False
-
-
-if(preprocessing_status):
-    print("Preprocessing eseguito correttamente")
 
 # Apro il ds iniziale
 with open("creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    with open('creditcard_undersampled.csv', 'w') as new_dataset:
+    with open('creditcard_undersampled1.csv', 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe
         new_rows = norm_sample.values.tolist()
         csvWriter.writerows(new_rows)
+end_time = time.time() - start_time
+print ("Tempo metodo 1: " + str(end_time) + "s")
 
-print("Nuovo dataset creato correttamente")
+
+#Metodo 2
+start_time = time.time()
+preprocessing_status = True
+
+scaler = StandardScaler(withMean=True, withStd=True)
+
+# Converto il ds pandas in un ds spark
+under_sample = spark.createDataFrame(under_sample).rdd.map(list)
+
+# Estrapolo le features (tranne time, cioè la prima) e le label dalla rdd
+features = under_sample.map(lambda x: x[1:30])
+labels = under_sample.map(lambda x: x[30]).map(lambda x: float(x))
+
+# Creo lo scaler con media e deviazione standard in base alle features ottenute prima
+model = scaler.fit(features)
+
+# Scalo i valori delle features
+results = model.transform(features)
+
+# Estrapolo V1, da usare come indice per la join successiva e poi time (non scalato), per motivi di ordine nel df
+v1s = results.map(lambda x: x[0]).map(lambda x: float(x))
+times = under_sample.map(lambda x: x[0]).map(lambda x: float(x))
+
+# Trasformo le features scalata in un DataFrame spark
+results = results.map(lambda x: x.toArray().tolist()).toDF(schema = ['V1','V2','V3','V4','V5','V6','V7','V8','V9','V10','V11','V12','V13','V14','V15','V16'
+    ,'V17','V18','V19','V20','V21','V22','V23','V24','V25','V26','V27','V28','Amount'])
+
+# Creo un DataFrame spark con time e v1
+timeDF = spark.createDataFrame(zip(times.collect(), v1s.collect()), schema= ['Time', 'V1'])
+
+# Joino i due df, per aggiungere la colonna del Time (il tutto per non normalizzarla)
+norm_sample = timeDF.join(results, results.V1 == timeDF.V1, how='left').drop(timeDF.V1)
+
+labelsDF = spark.createDataFrame(zip(times.collect(), labels.collect()), schema= ['Time', 'Class'])
+
+# Unisco i due DataFrame spark in base al time
+norm_sample = norm_sample.join(labelsDF, norm_sample.Time == labelsDF.Time, how='left').drop(labelsDF.Time).orderBy('Time', ascending = True)
+
+# results.show()
+# labelsDF.show()
+# norm_sample.show()
+
+# Apro il ds iniziale
+with open("creditcard.csv") as original_dataset:
+    csvReader = list(csv.reader(original_dataset))
+    # Creo il nuovo ds
+    with open('creditcard_undersampled2.csv', 'w') as new_dataset:
+        csvWriter = csv.writer(new_dataset)
+        csvWriter.writerow(csvReader[0]) # scrivo l'header
+        # Scrivo le nuove righe
+        new_rows = norm_sample.collect()
+        csvWriter.writerows(new_rows)
+
+end_time = time.time() - start_time
+print ("Tempo metodo 2: " + str(end_time) + "s")
