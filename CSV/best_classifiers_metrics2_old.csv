@@ -1,0 +1,5 @@
+Model,Index best test,Sensitivity,Fallout,Specificity,Miss_Rate,Test_Err,AUC
+DecisionTreeModel,14.4,0.9772,0.0617,0.9383,0.0228,0.0376,0.9623
+RandomForest MLLib,1.2,0.9926,0.0755,0.9245,0.0074,0.0326,0.9719
+RandomForest Sklearn,3.2,0.9926,0.0755,0.9245,0.0074,0.0326,0.9719
+GradientBoostedTree,3.2,0.9856,0.0461,0.9539,0.0144,0.0256,0.9741

@@ -3,11 +3,11 @@ from pyspark.shell import sc, spark
 # il decisiontree vuole una rdd di labeledpoint
 
 
-def setsCreation(multiplier):
+def setsCreation(multiplier, dataset):
     datas = []
 
     # Leggo il ds con pandas
-    p_df = pd.read_csv('creditcard_undersampled.csv')
+    p_df = pd.read_csv('creditcard_undersampled' + str(dataset) + '.csv')
 
     # Converto il ds pandas in un ds spark
     s_df = spark.createDataFrame(p_df)

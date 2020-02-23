@@ -9,13 +9,14 @@ import Classifier_RandomForest_sklearn as crf_sk
 import Classifier_RandomForest as crf
 import Classifier_GradientBoostedTree as cgbt
 import Classifier_MultilayerPerceptron as cmlp
-import ResultAnalysis as ra
+import MetricsEvalutation as me
 
-verbose = False  # Per stampare o meno i risultati di tutti i test
-multiplier = 1   # Ripetizioni del singolo test
+verbose = False   # Per stampare o meno i risultati di tutti i test
+multiplier = 10   # Ripetizioni del singolo test
+used_dataset = 1  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
 
 # File per testare diversi trainingset e testset sui classificatori implementati, fornendo diversi parametri
-datas = SetsCreation.setsCreation(multiplier)
+datas = SetsCreation.setsCreation(multiplier, used_dataset)
 
 # DecisionTree (libreria MLLib) = DT
 # RandomForest (libreria MLLib) = RFML
@@ -63,31 +64,33 @@ j_min_err = -1
 k_min_err = -1
 l_min_err = -1
 m_min_err = -1
-result_min = ra.Results(1, 1, 1, 1, 1, 1)
+result_min = me.Results(1, 1, 1, 1, 1, 1)
 
-with open('classifiers_results.csv', 'w') as result_file:
-    with open('best_classifiers_results.csv', 'w') as best_result_file:
-        csvWriter = csv.writer(result_file)
-        csvBestWriter = csv.writer(best_result_file)
+with open('classifiers_metrics' + str(used_dataset) + '.csv', 'w') as metric_file:
+    with open('best_classifiers_metrics' + str(used_dataset) + '.csv', 'w') as best_metric_file:
+        csvWriter = csv.writer(metric_file)
+        csvBestWriter = csv.writer(best_metric_file)
 
         csvBestWriter.writerow(['Model', 'Index best test', 'Sensitivity', 'Fallout',
                                 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
 
-        csvWriter.writerow(['Decision_Tree MLLib'])
-        csvWriter.writerow(['Iteration', 'Impurity', 'Max_Depth', 'Max_Bins',
-                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
-                            'Test_Error', 'AUC', 'Exec_Time'])
-
+        csvWriter.writerow(['Multiplier: ' + str(multiplier)])
+        '''
+        # DECISION TREE MLLib
         # impurity = ['gini', 'entropy']
         # maxDepth = [5, 6, 7]
         # maxBins = [32, 64, 128]
 
-        # DECISION TREE MLLib
-        max_count = 18
-        for i in range(0, 18):
-            j = 0 if i < 9 else 1  # impurity
-            k = int(i/3) % 3       # maxDepth
-            l = i % 3              # maxBins
+        max_count = len(impurity) * len(maxDepth) * len(maxBins)
+        csvWriter.writerow(['Decision_Tree MLLib: ' + str(max_count) + ' different tests'])
+        csvWriter.writerow(['Iteration', 'Impurity', 'Max_Depth', 'Max_Bins',
+                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
+                            'Test_Error', 'AUC', 'Exec_Time'])
+
+        for i in range(0, max_count):
+            j = int(i / (len(maxDepth) * len(maxBins)))  # impurity
+            k = int(i / len(maxBins)) % len(maxDepth)    # maxDepth
+            l = i % len(maxBins)                         # maxBins
 
             for t in range(0, multiplier):
                 if verbose:
@@ -111,7 +114,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                                                         maxBins[l], minInstancesPerNode[0], minInfoGain[0])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
+                results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -148,33 +151,33 @@ with open('classifiers_results.csv', 'w') as result_file:
         j_min_err = -1
         k_min_err = -1
         l_min_err = -1
-        result_min = ra.Results(1, 1, 1, 1, 1, 1)
+        result_min = me.Results(1, 1, 1, 1, 1, 1)
         iter_count = 0
 
-        csvWriter.writerow(['Random_Forest MLLib'])
-        csvWriter.writerow(['Iteration', 'Impurity', 'Max_Depth', 'Max_Bins', 'Num_Trees',
-                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
-                            'Test_Error', 'AUC'])
-
+        # RANDOM FOREST MLLib
         # impurity = ['gini', 'entropy']
         # maxDepth = [5, 6, 7]
         # maxBins = [32, 64, 128]
         # numTrees = [100, 200]
 
-        # RANDOM FOREST MLLib
-        max_count = 35
-        for i in range(0, 35):
-            j = 0 if i < 18 else 1  # impurity
-            k = int(i / 6) % 3      # maxDepth
-            l = int(i / 3) % 2      # maxBins
-            m = i % 3               # numTrees
+        max_count = len(impurity) * len(maxDepth) * len(maxBins) * len(numTrees)
+        csvWriter.writerow(['Random_Forest MLLib: ' + str(max_count) + ' different tests'])
+        csvWriter.writerow(['Iteration', 'Impurity', 'Max_Depth', 'Max_Bins', 'Num_Trees',
+                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
+                            'Test_Error', 'AUC', 'Exec_Time'])
+
+        for i in range(0, max_count):
+            j = int(i / (len(maxDepth) * len(maxBins) * len(numTrees)))  # impurity
+            k = int(i / (len(maxBins) * len(numTrees))) % len(maxDepth)  # maxDepth
+            l = int(i / len(numTrees)) % len(maxBins)                    # maxBins
+            m = i % len(numTrees)                                        # numTrees
 
             for t in range(0, multiplier):
                 if verbose:
                     print("\n--------------------------------------------------\n")
                     print("Test " + str(i+1) + "." + str(t+1)
                           + " con impurity: " + impurity[j] + ", maxDepth: " + str(maxDepth[k])
-                          + ", maxBins: " + str(maxBins[m]) + ", numTrees: " + str(numTrees[l]))
+                          + ", maxBins: " + str(maxBins[l]) + ", numTrees: " + str(numTrees[m]))
                 else:
                     iter_count = (i * multiplier) + t
                     percentage = int((iter_count / (max_count * multiplier)) * 100)
@@ -188,10 +191,10 @@ with open('classifiers_results.csv', 'w') as result_file:
 
                 start_time = time.time()
                 predictionsAndLabels = crf.randomForest(c_trainingData, c_testData, impurity[j], maxDepth[k],
-                                                        maxBins[m], numTrees[l])
+                                                        maxBins[l], numTrees[m])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
+                results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -203,7 +206,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                     result_min = results
 
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
-                                    impurity[j], str(maxDepth[k]), str(maxBins[m]), str(numTrees[l]),
+                                    impurity[j], str(maxDepth[k]), str(maxBins[l]), str(numTrees[m]),
                                     str(results.sensitivity), str(results.fallout), str(results.specificity),
                                     str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
 
@@ -232,26 +235,26 @@ with open('classifiers_results.csv', 'w') as result_file:
         k_min_err = -1
         l_min_err = -1
         m_min_err = -1
-        result_min = ra.Results(1, 1, 1, 1, 1, 1)
+        result_min = me.Results(1, 1, 1, 1, 1, 1)
         iter_count = 0
 
-        csvWriter.writerow(['Random_Forest Sklearn'])
-        csvWriter.writerow(['Iteration', 'Impurity', 'Max_Depth', 'N_Estimators', 'Max_Features',
-                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
-                            'Test_Error', 'AUC'])
-
+        # RANDOM FOREST Sklearn
         # impurity = ['gini', 'entropy']
         # maxDepth = [5, 6, 7]
         # n_estimators = [100, 200]
         # max_features = ['auto', 'sqrt', 'log2']
 
-        # RANDOM FOREST Sklearn
-        max_count = 35
-        for i in range(0, 35):
-            j = 0 if i < 18 else 1  # impurity
-            k = int(i/6) % 3        # maxDepth
-            l = int(i/3) % 2        # n_estimators
-            m = i % 3               # max_features
+        max_count = len(impurity) * len(maxDepth) * len(n_estimators) * len(max_features)
+        csvWriter.writerow(['Random_Forest Sklearn: ' + str(max_count) + ' different tests'])
+        csvWriter.writerow(['Iteration', 'Impurity', 'Max_Depth', 'N_Estimators', 'Max_Features',
+                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
+                            'Test_Error', 'AUC', 'Exec_Time'])
+
+        for i in range(0, max_count):
+            j = int(i / (len(maxDepth) * len(n_estimators) * len(max_features)))  # impurity
+            k = int(i / (len(n_estimators) * len(max_features))) % len(maxDepth)  # maxDepth
+            l = int(i / len(max_features)) % len(n_estimators)                    # n_estimators
+            m = i % len(max_features)                                             # max_features
 
             for t in range(0, multiplier):
                 if verbose:
@@ -275,7 +278,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                                                            maxDepth[k], max_features[m])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
+                results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -316,26 +319,26 @@ with open('classifiers_results.csv', 'w') as result_file:
         k_min_err = -1
         l_min_err = -1
         m_min_err = -1
-        result_min = ra.Results(1, 1, 1, 1, 1, 1)
+        result_min = me.Results(1, 1, 1, 1, 1, 1)
         iter_count = 0
 
-        csvWriter.writerow(['Gradient Boosted tree'])
-        csvWriter.writerow(['Iteration', 'Loss', 'Max_Depth', 'Max_Bins', 'Num_Iterations',
-                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
-                            'Test_Error', 'AUC'])
-
+        # GRADIENT BOOSTED TREE ML.classification
         # loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
         # maxDepth2 = [3, 5]
         # maxBins = [32, 64, 128]
         # numIterations = [50, 100]
 
-        # GRADIENT BOOSTED TREE ML.classification
-        max_count = 35
-        for i in range(0, 35):
-            j = int(i / 12)     # loss
-            k = int(i / 6) % 2  # maxDepth2
-            l = int(i / 2) % 3  # maxBins
-            m = i % 2           # numIterators
+        max_count = len(loss) * len(maxDepth2) * len(maxBins) * len(numIterations)
+        csvWriter.writerow(['Gradient Boosted Tree: ' + str(max_count) + ' different tests'])
+        csvWriter.writerow(['Iteration', 'Loss', 'Max_Depth', 'Max_Bins', 'Num_Iterations',
+                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
+                            'Test_Error', 'AUC', 'Exec_Time'])
+
+        for i in range(0, max_count):
+            j = int(i / (len(maxDepth2) * len(maxBins) * len(numIterations)))  # loss
+            k = int(i / (len(maxBins) * len(numIterations))) % len(maxDepth2)  # maxDepth2
+            l = int(i / len(numIterations)) % len(maxBins)                     # maxBins
+            m = i % len(numIterations)                                         # numIterations
 
             for t in range(0, multiplier):
                 if verbose:
@@ -359,7 +362,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                                                                  maxDepth2[k], maxBins[l])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
 
-                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
+                results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
@@ -389,7 +392,7 @@ with open('classifiers_results.csv', 'w') as result_file:
                                 result_min.testErr, result_min.AUC])
 
         csvWriter.writerow(['#############################'])
-
+        '''
         j = -1
         k = -1
         l = -1
@@ -400,27 +403,26 @@ with open('classifiers_results.csv', 'w') as result_file:
         k_min_err = -1
         l_min_err = -1
         m_min_err = -1
-        result_min = ra.Results(1, 1, 1, 1, 1, 1)
+        result_min = me.Results(1, 1, 1, 1, 1, 1)
         iter_count = 0
 
-        csvWriter.writerow(['Multilayer Perceptron'])
-        csvWriter.writerow(['Iteration', 'Max_Iter', 'Layer', 'Block_Size', 'Solver',
-                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
-                            'Test_Error', 'AUC'])
-
+        # MULTILAYER PERCEPTRON ML.classification
         # maxIter (numIterations) = [50, 100]
         # layer = [[30, 10, 2], [30, 20, 2], [30, 20, 10, 2]]
         # blockSize = [128, 256, 512]
         # solver = ['l-bfgs', 'gd']
 
+        max_count = len(numIterations) * len(layer) * len(blockSize) * len(solver)
+        csvWriter.writerow(['Multilayer Perceptron: ' + str(max_count) + ' different tests'])
+        csvWriter.writerow(['Iteration', 'Max_Iter', 'Layer', 'Block_Size', 'Solver',
+                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
+                            'Test_Error', 'AUC', 'Exec_Time'])
 
-        # MULTILAYER PERCEPTRON ML.classification
-        max_count = 35
-        for i in range(0, 35):
-            j = int(i / 18)     # numIterator
-            k = int(i / 6) % 3  # layer
-            l = int(i / 2) % 3  # blockSize
-            m = i % 2           # solver
+        for i in range(0, max_count):
+            j = int(i / (len(layer) * len(blockSize) * len(solver)))  # numIterations
+            k = int(i / (len(blockSize) * len(solver))) % len(layer)  # layer
+            l = int(i / len(solver)) % len(blockSize)                 # blockSize
+            m = i % len(solver)                                       # solver
 
             for t in range(0, multiplier):
                 if verbose:
@@ -444,7 +446,7 @@ with open('classifiers_results.csv', 'w') as result_file:
 
                 # x = labelsAndPredictions.collect()
 
-                results = ra.resultAnalisys(predictionsAndLabels, testRecordsNumber, verbose)
+                results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
 
                 if results.testErr < result_min.testErr:
                     index_min_err = i
