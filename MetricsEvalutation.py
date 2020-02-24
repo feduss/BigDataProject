@@ -7,10 +7,30 @@ def metricsEvalutation(predictionsAndLabels, elementNumber, verbose):
     # True negatives sono quelli legittimi riconosciuti come tali
     # False positives sono quelli fraudolenti riconosciuti come legittimi
     # False negatives son quelli legittimi etichettati come fraudolenti
-    TP = predictionsAndLabels.filter(lambda v_p: v_p[0] == v_p[1] and v_p[1] == 1).count()
-    TN = predictionsAndLabels.filter(lambda v_p: v_p[0] == v_p[1] and v_p[1] == 0).count()
-    FP = predictionsAndLabels.filter(lambda v_p: v_p[0] != v_p[1] and v_p[1] == 1).count()
-    FN = predictionsAndLabels.filter(lambda v_p: v_p[0] != v_p[1] and v_p[1] == 0).count()
+
+    TPdata = predictionsAndLabels.filter(lambda v_p: v_p[0] == v_p[1] and v_p[1] == 1)
+    if not TPdata.isEmpty():
+        TP = TPdata.count()
+    else:
+        TP = 0
+
+    TNdata = predictionsAndLabels.filter(lambda v_p: v_p[0] == v_p[1] and v_p[1] == 0)
+    if not TNdata.isEmpty():
+        TN = TNdata.count()
+    else:
+        TN = 0
+
+    FPdata = predictionsAndLabels.filter(lambda v_p: v_p[0] != v_p[1] and v_p[1] == 1)
+    if not FPdata.isEmpty():
+        FP = FPdata.count()
+    else:
+        FP = 0
+
+    FNdata = predictionsAndLabels.filter(lambda v_p: v_p[0] != v_p[1] and v_p[1] == 0)
+    if not FNdata.isEmpty():
+        FN = FNdata.count()
+    else:
+        FN = 0
 
     # Calcolo l'errore dividendo il numero di predizioni sbagliate per il numero di dati
     testErr = (FP + FN) / elementNumber

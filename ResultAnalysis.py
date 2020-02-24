@@ -1,11 +1,11 @@
 import csv
 from statistics import mean, stdev
 
-used_dataset = 1  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
-classifiers = 5   # Da aggiornare con il numero di classificatori contenuti nel file
+used_dataset = 2  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
+classifiers = 4   # Da aggiornare con il numero di classificatori contenuti nel file
 
-with open('CSV/classifiers_metrics_old.csv', 'r') as metrics_reader:  # TODO cambia il file di riferimento
-    with open('results.csv', 'w') as result_file:
+with open('CSV/classifiers_metrics' + str(used_dataset) + '_old.csv', 'r') as metrics_reader:  # TODO cambia il file di riferimento
+    with open('results' + str(used_dataset) + '.csv', 'w') as result_file:
         csvWriter = csv.writer(result_file)
 
         # Recupero il moltiplicatore usato nell'analisi da valutare
@@ -90,6 +90,59 @@ with open('CSV/classifiers_metrics_old.csv', 'r') as metrics_reader:  # TODO cam
                         min_index = j
 
             csvWriter.writerow(["Best version of " + name + " is test n°" + str(min_index)])
+
+            csvWriter.writerow(["-"])
+
+            csvWriter.writerow(["Mean and St_Dev of the whole " + name + " classifier metrics are as follows:"])
+            
+            csvWriter.writerow(
+                ["Sensitivity: Mean = "
+                 + str(float("{0:.4f}".format(mean([average[j]["Sensitivity"] for j in range(len(average))]))))
+                 + "; St_Dev = "
+                 + str(float("{0:.4f}".format(stdev([average[j]["Sensitivity"] for j in range(len(standDev))]))))
+                 ])
+            
+            csvWriter.writerow(
+                ["Fallout: Mean = "
+                 + str(float("{0:.4f}".format(mean([average[j]["Fallout"] for j in range(len(average))]))))
+                 + "; St_Dev = "
+                 + str(float("{0:.4f}".format(stdev([average[j]["Fallout"] for j in range(len(standDev))]))))
+                 ])
+            
+            csvWriter.writerow(
+                ["Specificity: Mean = "
+                 + str(float("{0:.4f}".format(mean([average[j]["Specificity"] for j in range(len(average))]))))
+                 + "; St_Dev = "
+                 + str(float("{0:.4f}".format(stdev([average[j]["Specificity"] for j in range(len(standDev))]))))
+                 ])
+            
+            csvWriter.writerow(
+                ["Miss_Rate: Mean = "
+                 + str(float("{0:.4f}".format(mean([average[j]["Miss_Rate"] for j in range(len(average))]))))
+                 + "; St_Dev = "
+                 + str(float("{0:.4f}".format(stdev([average[j]["Miss_Rate"] for j in range(len(standDev))]))))
+                 ])
+            
+            csvWriter.writerow(
+                ["Test_Error: Mean = "
+                 + str(float("{0:.4f}".format(mean([average[j]["Test_Error"] for j in range(len(average))]))))
+                 + "; St_Dev = "
+                 + str(float("{0:.4f}".format(stdev([average[j]["Test_Error"] for j in range(len(standDev))]))))
+                 ])
+            
+            csvWriter.writerow(
+                ["AUC: Mean = "
+                 + str(float("{0:.4f}".format(mean([average[j]["AUC"] for j in range(len(average))]))))
+                 + "; St_Dev = "
+                 + str(float("{0:.4f}".format(stdev([average[j]["AUC"] for j in range(len(standDev))]))))
+                 ])
+            
+            csvWriter.writerow(
+                ["Exec_Time: Mean = "
+                 + str(float("{0:.4f}".format(mean([average[j]["Exec_Time"] for j in range(len(average))]))))
+                 + "; St_Dev = "
+                 + str(float("{0:.4f}".format(stdev([average[j]["Exec_Time"] for j in range(len(standDev))]))))
+                 ])
 
             supp_string = metrics_reader.readline()
             csvWriter.writerow([supp_string[:-1]])

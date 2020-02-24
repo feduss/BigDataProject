@@ -12,7 +12,7 @@ import Classifier_MultilayerPerceptron as cmlp
 import MetricsEvalutation as me
 
 verbose = False   # Per stampare o meno i risultati di tutti i test
-multiplier = 10   # Ripetizioni del singolo test
+multiplier = 3   # Ripetizioni del singolo test
 used_dataset = 1  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
 
 # File per testare diversi trainingset e testset sui classificatori implementati, fornendo diversi parametri
