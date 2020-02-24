@@ -18,12 +18,16 @@ from pyspark.ml.classification import MultilayerPerceptronClassifier
 # solver = The solver algorithm for optimization. Supported options: l-bfgs, gd
 # initialWeights = he initial weights of the model
 def multilayerPerceptron(trainingData, testData, maxIter=100, layers=None, blockSize=128, solver="l-bfgs", seed=None,
-                         featuresCol="features", labelCol="label", predictionCol="prediction", tol=1e-6, stepSize=0.03,
+                         featuresCol="features", labelCol="label", predictionCol="prediction", tol=0.1, stepSize=0.03,
                          initialWeights=None, probabilityCol="probability",
                          rawPredictionCol="rawPrediction"):
 
     # Creo il classificatore
-    trainer = MultilayerPerceptronClassifier(maxIter=maxIter, layers=layers, blockSize=blockSize, solver=solver)
+    trainer = MultilayerPerceptronClassifier(maxIter=maxIter, layers=layers, blockSize=blockSize, solver=solver,
+                                             seed = seed, featuresCol = featuresCol, labelCol = labelCol,
+                                             predictionCol =predictionCol, tol = tol, stepSize = stepSize,
+                                             initialWeights = initialWeights, probabilityCol = probabilityCol,
+                                             rawPredictionCol = rawPredictionCol)
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
