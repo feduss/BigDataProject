@@ -8,11 +8,12 @@ import Classifier_DecisionTree as cdt
 import Classifier_RandomForest_sklearn as crf_sk
 import Classifier_RandomForest as crf
 import Classifier_GradientBoostedTree as cgbt
-import Classifier_MultilayerPerceptron as cmlp
+import Classifier_LogisticRegression as clr
+import Classifier_LinearSVC as clsvc
 import MetricsEvalutation as me
 
-verbose = False   # Per stampare o meno i risultati di tutti i test
-multiplier = 3   # Ripetizioni del singolo test
+verbose = True   # Per stampare o meno i risultati di tutti i test
+multiplier = 1   # Ripetizioni del singolo test
 used_dataset = 1  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
 
 # File per testare diversi trainingset e testset sui classificatori implementati, fornendo diversi parametri
@@ -22,12 +23,15 @@ datas = SetsCreation.setsCreation(multiplier, used_dataset)
 # RandomForest (libreria MLLib) = RFML
 # RandomForest (libreria SkLearn) = RFSL
 # GradientBoostedTree (libreria MLLib) = GBT
-# Multilayer Perceptron (libreria ML.classification) = MLC
+# Logistic Regression (libreria ML.classification) = LR
+# LinearSVC (libreria ML.classification) = LSVC
 
 impurity = ['gini', 'entropy']  # DT, RFML, RFSL
 maxDepth = [5, 6, 7]            # DT, RFML, RFSL
 maxBins = [32, 64, 128]         # DT, RFML, GBT
-numIterations = [50, 100]       # GBT, MLC
+numIterations = [50, 100]       # GBT, LR, LSVC
+regParam = [0.1, 0.3, 0.5]      # LR, LSVC
+aggregationDepth = [2, 3, 4]    # LR, LSVC
 
 # Solo Decision Tree
 minInstancesPerNode = [1]
@@ -44,10 +48,8 @@ max_features = ['auto', 'sqrt', 'log2']
 loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
 maxDepth2 = [3, 5]
 
-# Solo Multilayer Perceptron
-layer = [[30, 10, 2], [30, 20, 2], [30, 20, 10, 2]]
-blockSize = [128, 256, 512]
-solver = ['l-bfgs', 'gd']
+# Solo Logistic Regression
+elasticNetParam = [0.8, 1.0, 1.2]
 
 # Contatori
 iter_count = 0
@@ -392,7 +394,7 @@ with open('classifiers_metrics' + str(used_dataset) + '.csv', 'w') as metric_fil
                                 result_min.testErr, result_min.AUC])
 
         csvWriter.writerow(['#############################'])
-        '''
+        
         j = -1
         k = -1
         l = -1
@@ -406,45 +408,44 @@ with open('classifiers_metrics' + str(used_dataset) + '.csv', 'w') as metric_fil
         result_min = me.Results(1, 1, 1, 1, 1, 1)
         iter_count = 0
 
-        # MULTILAYER PERCEPTRON ML.classification
+        # Logistic Regression ML.classification
         # maxIter (numIterations) = [50, 100]
-        # layer = [[30, 10, 2], [30, 20, 2], [30, 20, 10, 2]]
-        # blockSize = [128, 256, 512]
-        # solver = ['l-bfgs', 'gd']
+        # regParam = [0.1, 0.3, 0.5]
+        # elasticNetParam = [0.8, 1.0, 1.2]
+        # aggregationDepth = [2, 3, 4]
 
-        max_count = len(numIterations) * len(layer) * len(blockSize) * len(solver)
-        csvWriter.writerow(['Multilayer Perceptron: ' + str(max_count) + ' different tests'])
-        csvWriter.writerow(['Iteration', 'Max_Iter', 'Layer', 'Block_Size', 'Solver',
+        max_count = len(numIterations) * len(regParam) * len(elasticNetParam) * len(aggregationDepth)
+        csvWriter.writerow(['Logistic Regression: ' + str(max_count) + ' different tests'])
+        csvWriter.writerow(['Iteration', 'Max_Iter', 'Reg_Param', 'Elastic_Net_Param', 'Aggregation_Depth',
                             'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
                             'Test_Error', 'AUC', 'Exec_Time'])
 
         for i in range(0, max_count):
-            j = int(i / (len(layer) * len(blockSize) * len(solver)))  # numIterations
-            k = int(i / (len(blockSize) * len(solver))) % len(layer)  # layer
-            l = int(i / len(solver)) % len(blockSize)                 # blockSize
-            m = i % len(solver)                                       # solver
+            j = int(i / (len(regParam) * len(elasticNetParam) * len(aggregationDepth)))  # numIterations
+            k = int(i / (len(elasticNetParam) * len(aggregationDepth))) % len(regParam)  # regParam
+            l = int(i / len(aggregationDepth)) % len(elasticNetParam)                    # elasticNetParam
+            m = i % len(aggregationDepth)                                                # aggregationDepth
 
             for t in range(0, multiplier):
                 if verbose:
                     print("\n--------------------------------------------------\n")
                     print("Test " + str(i+1) + "." + str(t+1)
-                          + " con maxIter: " + str(numIterations[j]) + ", layer: " + str(layer[k])
-                          + ", blockSize: " + str(blockSize[l]) + ", solver: " + solver[m])
+                          + " con maxIter: " + str(numIterations[j]) + ", regParam: " + str(regParam[k])
+                          + ", elasticNetParam: " + str(elasticNetParam[l])
+                          + ", aggregationDepth: " + str(aggregationDepth[m]))
                 else:
                     iter_count = (i * multiplier) + t
                     percentage = int((iter_count / (max_count * multiplier)) * 100)
-                    sys.stdout.write('\rPercentuale completamento test MLP: ' + str(percentage) + "%"),
+                    sys.stdout.write('\rPercentuale completamento test LR: ' + str(percentage) + "%"),
                     sys.stdout.flush()
 
                 (trainingData, testData) = datas[t]
                 testRecordsNumber = float(testData.count())
 
                 start_time = time.time()
-                predictionsAndLabels = cmlp.multilayerPerceptron(trainingData, testData, numIterations[j], layer[k],
-                                                                 blockSize[l], solver[m])
+                predictionsAndLabels = clr.logisticRegression(trainingData, testData, numIterations[j], regParam[k],
+                                                                 elasticNetParam[l], aggregationDepth[m])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
-
-                # x = labelsAndPredictions.collect()
 
                 results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
 
@@ -458,20 +459,103 @@ with open('classifiers_metrics' + str(used_dataset) + '.csv', 'w') as metric_fil
                     result_min = results
 
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
-                                    str(numIterations[j]), str(layer[k]), str(blockSize[l]), solver[m],
-                                    str(results.sensitivity), str(results.fallout), str(results.specificity),
-                                    str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
+                                    str(numIterations[j]), str(regParam[k]), str(elasticNetParam[l]),
+                                    str(aggregationDepth[m]), str(results.sensitivity), str(results.fallout),
+                                    str(results.specificity), str(results.missRate), str(results.testErr),
+                                    str(results.AUC), str(end_time)])
 
             # input("Premi invio per continuare...\n")
 
         # N.B. Può capitare che certi test ottengano lo stesso risultato, ma solo uno viene etichettato come migliore
-        print("\nMiglior risultato Multilayer Perceptron: test " + str(index_min_err+1) + "." + str(iter_min_err+1))
-        print("maxIter: " + str(numIterations[j_min_err]) + ", layer: " + str(layer[k_min_err]) + ", blockSize: "
-              + str(blockSize[l_min_err]) + ", solver: " + solver[m_min_err])
+        print("\nMiglior risultato Logistic Regression: test " + str(index_min_err+1) + "." + str(iter_min_err+1))
+        print("maxIter: " + str(numIterations[j_min_err]) + ", regParam: " + str(regParam[k_min_err]) + ", elasticNetParam: "
+              + str(elasticNetParam[l_min_err]) + ", aggregationDepth: " + str(aggregationDepth[m_min_err]))
         print("Tasso di errore: " + str(result_min.testErr * 100) + "%")
         print('--------------------------------------------------\n')
 
-        csvBestWriter.writerow(['Multilayer Perceptron', str(index_min_err+1) + "." + str(iter_min_err+1),
+        csvBestWriter.writerow(['Logistic Regression', str(index_min_err+1) + "." + str(iter_min_err+1),
+                                result_min.sensitivity, result_min.fallout, result_min.specificity, result_min.missRate,
+                                result_min.testErr, result_min.AUC])
+
+        csvWriter.writerow(['#############################'])
+        '''
+
+        j = -1
+        k = -1
+        l = -1
+        m = -1
+        index_min_err = -1
+        iter_min_err = -1
+        j_min_err = -1
+        k_min_err = -1
+        l_min_err = -1
+        m_min_err = -1
+        result_min = me.Results(1, 1, 1, 1, 1, 1)
+        iter_count = 0
+
+        # LinearSVC ML.classification
+        # maxIter (numIterations) = [50, 100]
+        # regParam = [0.1, 0.3, 0.5]
+        # aggregationDepth = [2, 3, 4]
+
+        max_count = len(numIterations) * len(regParam) * len(aggregationDepth)
+        csvWriter.writerow(['LinearSVC: ' + str(max_count) + ' different tests'])
+        csvWriter.writerow(['Iteration', 'Max_Iter', 'Reg_Param', 'Aggregation_Depth',
+                            'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
+                            'Test_Error', 'AUC', 'Exec_Time'])
+
+        for i in range(0, max_count):
+            j = int(i / (len(regParam) * len(aggregationDepth)))  # numIterations
+            k = int(i / (len(aggregationDepth))) % len(regParam)  # regParam
+            m = i % len(aggregationDepth)  # aggregationDepth
+
+            for t in range(0, multiplier):
+                if verbose:
+                    print("\n--------------------------------------------------\n")
+                    print("Test " + str(i + 1) + "." + str(t + 1)
+                          + " con maxIter: " + str(numIterations[j]) + ", regParam: " + str(regParam[k])
+                          + ", aggregationDepth: " + str(aggregationDepth[m]))
+                else:
+                    iter_count = (i * multiplier) + t
+                    percentage = int((iter_count / (max_count * multiplier)) * 100)
+                    sys.stdout.write('\rPercentuale completamento test LSVC: ' + str(percentage) + "%"),
+                    sys.stdout.flush()
+
+                (trainingData, testData) = datas[t]
+                testRecordsNumber = float(testData.count())
+
+                start_time = time.time()
+                predictionsAndLabels = clsvc.linearSVC(trainingData, testData, numIterations[j], regParam[k],
+                                                       aggregationDepth[m])
+                end_time = float("{0:.3f}".format(time.time() - start_time))
+
+                results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
+
+                if results.testErr < result_min.testErr:
+                    index_min_err = i
+                    iter_min_err = t
+                    j_min_err = j
+                    l_min_err = l
+                    k_min_err = k
+                    m_min_err = m
+                    result_min = results
+
+                csvWriter.writerow([str(i + 1) + "." + str(t + 1),
+                                    str(numIterations[j]), str(regParam[k]),
+                                    str(aggregationDepth[m]), str(results.sensitivity), str(results.fallout),
+                                    str(results.specificity), str(results.missRate), str(results.testErr),
+                                    str(results.AUC), str(end_time)])
+
+            # input("Premi invio per continuare...\n")
+
+        # N.B. Può capitare che certi test ottengano lo stesso risultato, ma solo uno viene etichettato come migliore
+        print("\nMiglior risultato LinearSVC: test " + str(index_min_err + 1) + "." + str(iter_min_err + 1))
+        print("maxIter: " + str(numIterations[j_min_err]) + ", regParam: " + str(
+            regParam[k_min_err]) + ", aggregationDepth: " + str(aggregationDepth[m_min_err]))
+        print("Tasso di errore: " + str(result_min.testErr * 100) + "%")
+        print('--------------------------------------------------\n')
+
+        csvBestWriter.writerow(['LinearSVC', str(index_min_err + 1) + "." + str(iter_min_err + 1),
                                 result_min.sensitivity, result_min.fallout, result_min.specificity, result_min.missRate,
                                 result_min.testErr, result_min.AUC])
 
