@@ -19,6 +19,10 @@ Version,Sensitivity(Mean),Sensitivity(StDev),Fallout(Mean),Fallout(StDev),Specif
 17,0.907,0.018,0.0955,0.0226,0.9045,0.0226,0.093,0.018,0.0945,0.0097,0.9056,0.0098,0.636,0.0784
 18,0.9031,0.0246,0.0935,0.0192,0.9065,0.0192,0.0969,0.0246,0.0953,0.0148,0.9049,0.0148,0.7642,0.1248
 Best version of Decision_Tree MLLib is test n°2
+With 3 parameters:
+Impurity: gini
+Max_Depth: 5
+Max_Bins: 64
 -
 Mean and St_Dev of the whole Decision_Tree MLLib classifier metrics are as follows:
 Sensitivity: Mean = 0.9152; St_Dev = 0.0096
@@ -68,6 +72,11 @@ Version,Sensitivity(Mean),Sensitivity(StDev),Fallout(Mean),Fallout(StDev),Specif
 35,0.9715,0.0091,0.1015,0.0226,0.8985,0.0226,0.0285,0.0091,0.0688,0.0123,0.9307,0.0115,1.4978,0.0817
 36,0.9737,0.0063,0.1018,0.0233,0.8982,0.0233,0.0264,0.0063,0.0681,0.0127,0.9314,0.0118,2.4501,0.1862
 Best version of Random_Forest MLLib is test n°14
+With 4 parameters:
+Impurity: gini
+Max_Depth: 7
+Max_Bins: 32
+Num_Trees: 200
 -
 Mean and St_Dev of the whole Random_Forest MLLib classifier metrics are as follows:
 Sensitivity: Mean = 0.9761; St_Dev = 0.0024
@@ -117,6 +126,11 @@ Version,Sensitivity(Mean),Sensitivity(StDev),Fallout(Mean),Fallout(StDev),Specif
 35,0.9746,0.0086,0.0985,0.0239,0.9015,0.0239,0.0254,0.0086,0.0658,0.0134,0.9337,0.0125,1.5803,0.1286
 36,0.9736,0.0076,0.1029,0.0242,0.8971,0.0242,0.0264,0.0076,0.0688,0.0141,0.9306,0.0132,1.553,0.104
 Best version of Random_Forest Sklearn is test n°34
+With 4 parameters:
+Impurity: entropy
+Max_Depth: 7
+N_Estimators: 200
+Max_Features: auto
 -
 Mean and St_Dev of the whole Random_Forest Sklearn classifier metrics are as follows:
 Sensitivity: Mean = 0.9735; St_Dev = 0.0026
@@ -166,6 +180,11 @@ Version,Sensitivity(Mean),Sensitivity(StDev),Fallout(Mean),Fallout(StDev),Specif
 35,0.9097,0.0383,0.0915,0.0182,0.9085,0.0182,0.0903,0.0383,0.0916,0.0169,0.9087,0.0164,12.2704,0.6373
 36,0.9045,0.0348,0.091,0.019,0.909,0.019,0.0955,0.0348,0.0936,0.017,0.9068,0.0165,29.1892,1.778
 Best version of Gradient Boosted Tree is test n°1
+With 4 parameters:
+Loss: logLoss
+Max_Depth: 3
+Max_Bins: 32
+Num_Iterations: 50
 -
 Mean and St_Dev of the whole Gradient Boosted Tree classifier metrics are as follows:
 Sensitivity: Mean = 0.927; St_Dev = 0.0117
@@ -233,6 +252,11 @@ Version,Sensitivity(Mean),Sensitivity(StDev),Fallout(Mean),Fallout(StDev),Specif
 53,0.9983,0.0036,0.1885,0.0268,0.8115,0.0268,0.0017,0.0036,0.1188,0.0178,0.8793,0.0164,0.9686,0.0627
 54,0.9983,0.0036,0.1744,0.0228,0.8256,0.0228,0.0017,0.0036,0.108,0.0143,0.8903,0.0128,1.0101,0.06
 Best version of Logistic Regression is test n°17
+With 4 parameters:
+Max_Iter: 50
+Reg_Param: 0.3
+Elastic_Net_Param: 1.2
+Aggregation_Depth: 3
 -
 Mean and St_Dev of the whole Logistic Regression classifier metrics are as follows:
 Sensitivity: Mean = 0.9971; St_Dev = 0.0017
@@ -264,6 +288,10 @@ Version,Sensitivity(Mean),Sensitivity(StDev),Fallout(Mean),Fallout(StDev),Specif
 17,0.9969,0.0066,0.3483,0.0267,0.6517,0.0267,0.0031,0.0066,0.2726,0.0267,0.7227,0.0242,11.509,2.8798
 18,0.9969,0.0066,0.3483,0.0267,0.6517,0.0267,0.0031,0.0066,0.2726,0.0267,0.7227,0.0242,11.5037,3.0091
 Best version of LinearSVC is test n°14
+With 3 parameters:
+Max_Iter: 100
+Reg_Param: 0.3
+Aggregation_Depth: 3
 -
 Mean and St_Dev of the whole LinearSVC classifier metrics are as follows:
 Sensitivity: Mean = 0.9969; St_Dev = 0.0

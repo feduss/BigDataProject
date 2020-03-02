@@ -4,12 +4,13 @@ import time
 
 import SetsCreation
 from pyspark.mllib.regression import LabeledPoint
-import Classifier_DecisionTree as cdt
-import Classifier_RandomForest_sklearn as crf_sk
-import Classifier_RandomForest as crf
-import Classifier_GradientBoostedTree as cgbt
-import Classifier_LogisticRegression as clr
-import Classifier_LinearSVC as clsvc
+from Classifiers import \
+     DecisionTree as cdt, \
+     RandomForest as crf, \
+     GradientBoostedTree as cgbt, \
+     LogisticRegression as clr, \
+     RandomForest_sklearn as crf_sk, \
+     LinearSVC as clsvc
 import MetricsEvalutation as me
 import ResultAnalysis as ra
 
@@ -35,10 +36,6 @@ def mainTestClassifier(verbose, multiplier, used_dataset):
     numIterations = [50, 100]       # GBT, LR, LSVC
     regParam = [0.1, 0.3, 0.5]      # LR, LSVC
     aggregationDepth = [2, 3, 4]    # LR, LSVC
-
-    # Solo Decision Tree
-    minInstancesPerNode = [1]
-    minInfoGain = [0.0]
 
     # Solo Random Forest MLLib
     numTrees = [100, 200]
@@ -117,7 +114,7 @@ def mainTestClassifier(verbose, multiplier, used_dataset):
 
                     start_time = time.time()
                     predictionsAndLabels = cdt.decisionTree(c_trainingData, c_testData, impurity[j], maxDepth[k],
-                                                            maxBins[l], minInstancesPerNode[0], minInfoGain[0])
+                                                            maxBins[l])
                     end_time = float("{0:.3f}".format(time.time() - start_time))
 
                     results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
@@ -584,9 +581,9 @@ if __name__ == "__main__":
     mainTestClassifier(verbose, multiplier, 1)
     print("Test col primo dataset eseguiti in " + str(time.time() - mainTime) + " secondi")
     '''
-    mainTime = time.time()
-    mainTestClassifier(verbose, multiplier, 2)
-    print("Test col secondo dataset eseguiti in " + str(time.time() - mainTime) + " secondi")
+    #mainTime = time.time()
+    #mainTestClassifier(verbose, multiplier, 2)
+    #print("Test col secondo dataset eseguiti in " + str(time.time() - mainTime) + " secondi")
 
     ra.ResultAnalysis(1, classifiers)
     # ra.ResultAnalysis(2, classifiers)

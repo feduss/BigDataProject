@@ -14,7 +14,7 @@ from pyspark.mllib.linalg import Vectors
 from pyspark.shell import spark, sc
 from pyspark.sql import functions as F
 
-dataset = pd.read_csv('creditcard.csv') #Apro il Dataset come Panda DataFrame
+dataset = pd.read_csv('CSV Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
 
 # Calcolo il numero di frodi e non frodi presenti
 no_frauds = len(dataset[dataset['Class'] == 0])
@@ -57,10 +57,10 @@ for name_class in dataset.columns:
             print("Valore max: " + str(max_value) +", valore min: " + str(min_value))
 
 # Apro il ds iniziale
-with open("creditcard.csv") as original_dataset:
+with open("CSV Sources/creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    with open('creditcard_undersampled1.csv', 'w') as new_dataset:
+    with open('CSV Sources/creditcard_undersampled1.csv', 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe
@@ -113,10 +113,10 @@ norm_sample = norm_sample.join(labelsDF, norm_sample.Time == labelsDF.Time, how=
 # norm_sample.show()
 
 # Apro il ds iniziale
-with open("creditcard.csv") as original_dataset:
+with open("CSV Sources/creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    with open('creditcard_undersampled2.csv', 'w') as new_dataset:
+    with open('CSV Sources/creditcard_undersampled2.csv', 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe

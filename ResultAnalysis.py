@@ -4,10 +4,10 @@ from statistics import mean, stdev
 
 def ResultAnalysis(used_dataset, classifiers):
     # used_dataset = 2  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
-    # classifiers = 4   # Da aggiornare con il numero di classificatori contenuti nel file
+    # classifiers = 6   # Da aggiornare con il numero di classificatori contenuti nel file
 
-    with open('classifiers_metrics' + str(used_dataset) + '_final.csv', 'r') as metrics_reader:
-        with open('results' + str(used_dataset) + '_final.csv', 'w') as result_file:
+    with open('CSV Results/classifiers_metrics' + str(used_dataset) + '_final.csv', 'r') as metrics_reader:
+        with open('CSV Results/results' + str(used_dataset) + '_final.csv', 'w') as result_file:
             csvWriter = csv.writer(result_file)
 
             # Recupero il moltiplicatore usato nell'analisi da valutare
@@ -23,8 +23,9 @@ def ResultAnalysis(used_dataset, classifiers):
                 # Recupero il numero di test effettuati per il singolo classificatore
                 num_test = int(supp_string[1].split(" ")[0])
 
-                # Salto l'header della tabella dati
-                supp_string = metrics_reader.readline()
+                # Recupero i nomi dei parametri del classificatore
+                supp_string = metrics_reader.readline().split(",")
+                param_names = supp_string[1:(len(supp_string)-7)]
 
                 # Header del classificatore nei risultati
                 csvWriter.writerow([name + ": " + str(num_test) + " versions x " + str(multi) + " iterations"])
@@ -38,6 +39,7 @@ def ResultAnalysis(used_dataset, classifiers):
 
                 average = []
                 standDev = []
+                params = []
 
                 for j in range(0, num_test):  # Per ogni test con gli stessi parametri
                     sensitivity = []
@@ -52,6 +54,9 @@ def ResultAnalysis(used_dataset, classifiers):
                     for k in range(0, multi):
                         supp_string = metrics_reader.readline().split(",")
                         val = len(supp_string)
+
+                        if k == 0:
+                            params.append(supp_string[1:(len(param_names) + 1)])
 
                         sensitivity.append(float(supp_string[val-7]))
                         fallout.append(float(supp_string[val-6]))
@@ -95,6 +100,10 @@ def ResultAnalysis(used_dataset, classifiers):
                             min_index = j
 
                 csvWriter.writerow(["Best version of " + name + " is test n°" + str(min_index)])
+
+                csvWriter.writerow(["With " + str(len(param_names)) + " parameters:"])
+                for j in range(len(param_names)):
+                    csvWriter.writerow([param_names[j] + ": " + params[min_index-1][j]])
 
                 csvWriter.writerow(["-"])
 

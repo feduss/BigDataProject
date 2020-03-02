@@ -7,13 +7,13 @@ def setsCreation(multiplier, dataset):
     datas = []
 
     # Leggo il ds con pandas
-    p_df = pd.read_csv('creditcard_undersampled' + str(dataset) + '.csv')
+    p_df = pd.read_csv('CSV Sources/creditcard_undersampled' + str(dataset) + '.csv')
 
     # Converto il ds pandas in un ds spark
     s_df = spark.createDataFrame(p_df)
 
     for i in range(0, multiplier):
-        datas.append(s_df.rdd.randomSplit([0.7, 0.3]))
+        datas.append(s_df.rdd.randomSplit([0.7, 0.3], seed=1234))
 
     # Creo una RDD di LabeledPoint
     # converted_data = s_df.rdd.map(lambda x: LabeledPoint(x[30], x[:30]))

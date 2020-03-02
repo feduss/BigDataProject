@@ -11,7 +11,7 @@ from pyspark.mllib.tree import DecisionTree
 # minInfoGain = numero minimo di info ottenute per splittare un nodo
 
 
-def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, minInstancesPerNode, minInfoGain,
+def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, minInstancesPerNode = 1, minInfoGain = 0.0,
                  numClasses = 2, categoricalFeaturesInfo={}):
 
     # Creo e addestro il DecisionTree model
