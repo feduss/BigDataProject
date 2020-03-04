@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 from pyspark.shell import sc, spark
 # il decisiontree vuole una rdd di labeledpoint
@@ -9,8 +11,8 @@ def setsCreation(multiplier, dataset):
     # Leggo il ds con pandas
     p_df = pd.read_csv('CSV Sources/creditcard_undersampled' + str(dataset) + '.csv')
 
-    # Converto il ds pandas in un ds spark
-    s_df = spark.createDataFrame(p_df)
+    # Converto il ds pandas in un ds spark, dando un numero di partition pari alla radice quadrata degli elementi
+    s_df = spark.createDataFrame(p_df).repartition(int(math.sqrt(len(p_df))))
 
     for i in range(0, multiplier):
         datas.append(s_df.rdd.randomSplit([0.7, 0.3], seed=1234))

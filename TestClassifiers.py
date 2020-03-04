@@ -576,15 +576,14 @@ if __name__ == "__main__":
     multiplier = 10
     classifiers = 6
 
-    '''
     mainTime = time.time()
     mainTestClassifier(verbose, multiplier, 1)
     print("Test col primo dataset eseguiti in " + str(time.time() - mainTime) + " secondi")
-    '''
-    #mainTime = time.time()
-    #mainTestClassifier(verbose, multiplier, 2)
-    #print("Test col secondo dataset eseguiti in " + str(time.time() - mainTime) + " secondi")
 
-    ra.ResultAnalysis(1, classifiers)
-    # ra.ResultAnalysis(2, classifiers)
+    mainTime = time.time()
+    mainTestClassifier(verbose, multiplier, 2)
+    print("Test col secondo dataset eseguiti in " + str(time.time() - mainTime) + " secondi")
+
+    ra.ResultAnalysis(classifiers, 'classifiers_metrics1_final', 'results1_final')
+    ra.ResultAnalysis(classifiers, 'classifiers_metrics2_final', 'results2_final')
     print("Analisi ultimate. File Results pronti")
