@@ -8,8 +8,8 @@ import SetsCreation
 from Classifiers import DecisionTree, RandomForest, RandomForest_sklearn, GradientBoostedTree, LogisticRegression, LinearSVC
 
 
-def getBestResults(num_classifiers):
-    with open('CSV Results/results1_final.csv', 'r') as resultsReader:
+def getBestResults(num_classifiers, used_dataset):
+    with open('CSV Results/results' + str(used_dataset) + '_final.csv', 'r') as resultsReader:
         best_result_lines = []
 
         # Ottengo i parametri del miglior risultato dei test di ogni classificatore
@@ -50,8 +50,8 @@ def getBestResults(num_classifiers):
 
         return best_result_lines
 
-def getLabelsAndPredictions(best_result_lines):
 
+def getLabelsAndPredictions(best_result_lines):
     datas = SetsCreation.setsCreation(1, 2)
 
     (trainingData, testData) = datas[0]
@@ -67,70 +67,132 @@ def getLabelsAndPredictions(best_result_lines):
         row = best_result_lines[i]
         parameters = row[2]
         if i is 0:
-            labelsAndPredictions.update({row[0]: DecisionTree.decisionTree(c_trainingData, c_testData, parameters[0], int(parameters[1]), int(parameters[2])).collect()})
+            labelsAndPredictions.update({row[0]: DecisionTree.decisionTree(c_trainingData, c_testData,
+                                                                           parameters[0], int(parameters[1]),
+                                                                           int(parameters[2])
+                                                                           ).collect()})
             print("1/6")
         elif i is 1:
-            labelsAndPredictions.update({row[0]:RandomForest.randomForest(c_trainingData, c_testData, parameters[0], int(parameters[1]), int(parameters[2]), int(parameters[3])).collect()})
+            labelsAndPredictions.update({row[0]: RandomForest.randomForest(c_trainingData, c_testData,
+                                                                           parameters[0], int(parameters[1]),
+                                                                           int(parameters[2]), int(parameters[3])
+                                                                           ).collect()})
             print("2/6")
         elif i is 2:
-            labelsAndPredictions.update({row[0]:RandomForest_sklearn.randomForest(c_trainingData, c_testData, int(parameters[1]), parameters[0], int(parameters[2]), parameters[3]).collect()})
+            labelsAndPredictions.update({row[0]: RandomForest_sklearn.randomForest(c_trainingData, c_testData,
+                                                                                   int(parameters[1]), parameters[0],
+                                                                                   int(parameters[2]), parameters[3]
+                                                                                   ).collect()})
             print("3/6")
         elif i is 3:
-            labelsAndPredictions.update({row[0]:GradientBoostedTree.gradientBoostedTrees(c_trainingData, c_testData, parameters[0], int(parameters[3]), int(parameters[1]), int(parameters[2])).collect()})
+            labelsAndPredictions.update({row[0]: GradientBoostedTree.gradientBoostedTrees(c_trainingData, c_testData,
+                                                                                          parameters[0], int(parameters[3]),
+                                                                                          int(parameters[1]), int(parameters[2])
+                                                                                          ).collect()})
             print("4/6")
         elif i is 4:
-            labelsAndPredictions.update({row[0]:LogisticRegression.logisticRegression(trainingData, testData, int(parameters[0]), float(parameters[1]), float(parameters[2]), int(parameters[3])).collect()})
+            labelsAndPredictions.update({row[0]: LogisticRegression.logisticRegression(trainingData, testData,
+                                                                                       int(parameters[0]), float(parameters[1]),
+                                                                                       float(parameters[2]), int(parameters[3])
+                                                                                       ).collect()})
             print("5/6")
         elif i is 5:
-            labelsAndPredictions.update({row[0]:LinearSVC.linearSVC(trainingData, testData, int(parameters[0]), float(parameters[1]), int(parameters[2])).collect()})
+            labelsAndPredictions.update({row[0]: LinearSVC.linearSVC(trainingData, testData,
+                                                                     int(parameters[0]), float(parameters[1]),
+                                                                     int(parameters[2])
+                                                                     ).collect()})
             print("6/6")
 
     return labelsAndPredictions
 
 
-def ensembler(predALab):
-
+def ensembler(predALab, used_dataset):
     ensemblePair = {}
 
-    ensemblePair.update({'DT RF': majorityVotePairs(predALab['Decision_Tree MLLib'], predALab['Random_Forest MLLib'])})
-    ensemblePair.update({'DT GBT': majorityVotePairs(predALab['Decision_Tree MLLib'], predALab['Gradient Boosted Tree'])})
-    ensemblePair.update({'DT LR': majorityVotePairs(predALab['Decision_Tree MLLib'], predALab['Logistic Regression'])})
-    ensemblePair.update({'DT LSVC': majorityVotePairs(predALab['Decision_Tree MLLib'], predALab['LinearSVC'])})
-    ensemblePair.update({'RF GBT': majorityVotePairs(predALab['Random_Forest MLLib'], predALab['Gradient Boosted Tree'])})
-    ensemblePair.update({'RF LR': majorityVotePairs(predALab['Random_Forest MLLib'], predALab['Logistic Regression'])})
-    ensemblePair.update({'RF LSVC': majorityVotePairs(predALab['Random_Forest MLLib'], predALab['LinearSVC'])})
-    ensemblePair.update({'GBT LR': majorityVotePairs(predALab['Gradient Boosted Tree'], predALab['Logistic Regression'])})
-    ensemblePair.update({'GBT LSVC': majorityVotePairs(predALab['Gradient Boosted Tree'], predALab['LinearSVC'])})
-    ensemblePair.update({'LR LSVC': majorityVotePairs(predALab['Logistic Regression'], predALab['LinearSVC'])})
+    ensemblePair.update({'DT RF': majorityVotePairs(predALab['Decision_Tree MLLib'],
+                                                    predALab['Random_Forest MLLib'])})
+    ensemblePair.update({'DT GBT': majorityVotePairs(predALab['Decision_Tree MLLib'],
+                                                     predALab['Gradient Boosted Tree'])})
+    ensemblePair.update({'DT LR': majorityVotePairs(predALab['Decision_Tree MLLib'],
+                                                    predALab['Logistic Regression'])})
+    ensemblePair.update({'DT LSVC': majorityVotePairs(predALab['Decision_Tree MLLib'],
+                                                      predALab['LinearSVC'])})
+    ensemblePair.update({'RF GBT': majorityVotePairs(predALab['Random_Forest MLLib'],
+                                                     predALab['Gradient Boosted Tree'])})
+    ensemblePair.update({'RF LR': majorityVotePairs(predALab['Random_Forest MLLib'],
+                                                    predALab['Logistic Regression'])})
+    ensemblePair.update({'RF LSVC': majorityVotePairs(predALab['Random_Forest MLLib'],
+                                                      predALab['LinearSVC'])})
+    ensemblePair.update({'GBT LR': majorityVotePairs(predALab['Gradient Boosted Tree'],
+                                                     predALab['Logistic Regression'])})
+    ensemblePair.update({'GBT LSVC': majorityVotePairs(predALab['Gradient Boosted Tree'],
+                                                       predALab['LinearSVC'])})
+    ensemblePair.update({'LR LSVC': majorityVotePairs(predALab['Logistic Regression'],
+                                                      predALab['LinearSVC'])})
 
     ensembleTriple = {}
 
-    ensembleTriple.update({'DT RF GBT': majorityVoteTriple(predALab['Decision_Tree MLLib'], predALab['Random_Forest MLLib'], predALab['Gradient Boosted Tree'])})
-    ensembleTriple.update({'DT RF LR': majorityVoteTriple(predALab['Decision_Tree MLLib'], predALab['Random_Forest MLLib'], predALab['Logistic Regression'])})
-    ensembleTriple.update({'DT RF LSVC': majorityVoteTriple(predALab['Decision_Tree MLLib'], predALab['Random_Forest MLLib'], predALab['LinearSVC'])})
-    ensembleTriple.update({'DT GBT LR': majorityVoteTriple(predALab['Decision_Tree MLLib'], predALab['Gradient Boosted Tree'], predALab['Logistic Regression'])})
-    ensembleTriple.update({'DT GBT LSVC': majorityVoteTriple(predALab['Decision_Tree MLLib'], predALab['Gradient Boosted Tree'], predALab['LinearSVC'])})
-    ensembleTriple.update({'DT LR LSVC': majorityVoteTriple(predALab['Decision_Tree MLLib'], predALab['Logistic Regression'], predALab['LinearSVC'])})
-    ensembleTriple.update({'RF GBT LR': majorityVoteTriple(predALab['Random_Forest MLLib'], predALab['Gradient Boosted Tree'], predALab['Logistic Regression'])})
-    ensembleTriple.update({'RF GBT LSVC': majorityVoteTriple(predALab['Random_Forest MLLib'], predALab['Gradient Boosted Tree'], predALab['LinearSVC'])})
-    ensembleTriple.update({'RF LR LSVC': majorityVoteTriple(predALab['Random_Forest MLLib'], predALab['Logistic Regression'], predALab['LinearSVC'])})
-    ensembleTriple.update({'GBT LR LSVC': majorityVoteTriple(predALab['Gradient Boosted Tree'], predALab['Logistic Regression'], predALab['LinearSVC'])})
+    ensembleTriple.update({'DT RF GBT': majorityVoteTriple(predALab['Decision_Tree MLLib'],
+                                                           predALab['Random_Forest MLLib'],
+                                                           predALab['Gradient Boosted Tree'])})
+    ensembleTriple.update({'DT RF LR': majorityVoteTriple(predALab['Decision_Tree MLLib'],
+                                                          predALab['Random_Forest MLLib'],
+                                                          predALab['Logistic Regression'])})
+    ensembleTriple.update({'DT RF LSVC': majorityVoteTriple(predALab['Decision_Tree MLLib'],
+                                                            predALab['Random_Forest MLLib'],
+                                                            predALab['LinearSVC'])})
+    ensembleTriple.update({'DT GBT LR': majorityVoteTriple(predALab['Decision_Tree MLLib'],
+                                                           predALab['Gradient Boosted Tree'],
+                                                           predALab['Logistic Regression'])})
+    ensembleTriple.update({'DT GBT LSVC': majorityVoteTriple(predALab['Decision_Tree MLLib'],
+                                                             predALab['Gradient Boosted Tree'],
+                                                             predALab['LinearSVC'])})
+    ensembleTriple.update({'DT LR LSVC': majorityVoteTriple(predALab['Decision_Tree MLLib'],
+                                                            predALab['Logistic Regression'],
+                                                            predALab['LinearSVC'])})
+    ensembleTriple.update({'RF GBT LR': majorityVoteTriple(predALab['Random_Forest MLLib'],
+                                                           predALab['Gradient Boosted Tree'],
+                                                           predALab['Logistic Regression'])})
+    ensembleTriple.update({'RF GBT LSVC': majorityVoteTriple(predALab['Random_Forest MLLib'],
+                                                             predALab['Gradient Boosted Tree'],
+                                                             predALab['LinearSVC'])})
+    ensembleTriple.update({'RF LR LSVC': majorityVoteTriple(predALab['Random_Forest MLLib'],
+                                                            predALab['Logistic Regression'],
+                                                            predALab['LinearSVC'])})
+    ensembleTriple.update({'GBT LR LSVC': majorityVoteTriple(predALab['Gradient Boosted Tree'],
+                                                             predALab['Logistic Regression'],
+                                                             predALab['LinearSVC'])})
 
     ensembleQuadruple = {}
 
-    ensembleQuadruple.update({'DT RF GBT LR': majorityVoteQuadruple(predALab['Decision_Tree MLLib'], predALab['Random_Forest MLLib'], predALab['Gradient Boosted Tree'], predALab['Logistic Regression'])})
-    ensembleQuadruple.update({'DT RF GBT LSVC': majorityVoteQuadruple(predALab['Decision_Tree MLLib'], predALab['Random_Forest MLLib'], predALab['Gradient Boosted Tree'], predALab['LinearSVC'])})
-    ensembleQuadruple.update({'DT RF LR LSVC': majorityVoteQuadruple(predALab['Decision_Tree MLLib'], predALab['Random_Forest MLLib'], predALab['Logistic Regression'], predALab['LinearSVC'])})
-    ensembleQuadruple.update({'DT GBT LR LSVC': majorityVoteQuadruple(predALab['Decision_Tree MLLib'], predALab['Gradient Boosted Tree'], predALab['Logistic Regression'], predALab['LinearSVC'])})
-    ensembleQuadruple.update({'RF GBT LR LSVC': majorityVoteQuadruple(predALab['Random_Forest MLLib'], predALab['Gradient Boosted Tree'], predALab['Logistic Regression'], predALab['LinearSVC'])})
+    ensembleQuadruple.update({'DT RF GBT LR': majorityVoteQuadruple(predALab['Decision_Tree MLLib'],
+                                                                    predALab['Random_Forest MLLib'],
+                                                                    predALab['Gradient Boosted Tree'],
+                                                                    predALab['Logistic Regression'])})
+    ensembleQuadruple.update({'DT RF GBT LSVC': majorityVoteQuadruple(predALab['Decision_Tree MLLib'],
+                                                                      predALab['Random_Forest MLLib'],
+                                                                      predALab['Gradient Boosted Tree'],
+                                                                      predALab['LinearSVC'])})
+    ensembleQuadruple.update({'DT RF LR LSVC': majorityVoteQuadruple(predALab['Decision_Tree MLLib'],
+                                                                     predALab['Random_Forest MLLib'],
+                                                                     predALab['Logistic Regression'],
+                                                                     predALab['LinearSVC'])})
+    ensembleQuadruple.update({'DT GBT LR LSVC': majorityVoteQuadruple(predALab['Decision_Tree MLLib'],
+                                                                      predALab['Gradient Boosted Tree'],
+                                                                      predALab['Logistic Regression'],
+                                                                      predALab['LinearSVC'])})
+    ensembleQuadruple.update({'RF GBT LR LSVC': majorityVoteQuadruple(predALab['Random_Forest MLLib'],
+                                                                      predALab['Gradient Boosted Tree'],
+                                                                      predALab['Logistic Regression'],
+                                                                      predALab['LinearSVC'])})
 
     ensembleQuintuple = {}
 
     ensembleQuintuple.update({'DT RF GBT LR LSVC': majorityVoteQuintuple(predALab['Decision_Tree MLLib'],
-                                                                   predALab['Random_Forest MLLib'],
-                                                                   predALab['Gradient Boosted Tree'],
-                                                                   predALab['Logistic Regression'],
-                                                                   predALab['LinearSVC'])})
+                                                                         predALab['Random_Forest MLLib'],
+                                                                         predALab['Gradient Boosted Tree'],
+                                                                         predALab['Logistic Regression'],
+                                                                         predALab['LinearSVC'])})
     result = {}
     for i in range(len(list(ensemblePair.keys()))):
         result.update({list(ensemblePair.keys())[i]: ma.metricsEvalutation(sc.parallelize(list(ensemblePair.values())[i]), len(list(ensemblePair.values())[i]), False)})
@@ -143,9 +205,7 @@ def ensembler(predALab):
 
     result.update({list(ensembleQuintuple.keys())[0]: ma.metricsEvalutation(sc.parallelize(list(ensembleQuintuple.values())[0]), len(list(ensembleQuintuple.values())[0]), False)})
 
-
-
-    with open("CSV Results/ensembles_metrics.csv", "w") as ensemble_metric:
+    with open("CSV Results/ensembles_metrics" + str(used_dataset) + ".csv", "w") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)
 
         csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
@@ -163,7 +223,6 @@ def ensembler(predALab):
 
 
 def majorityVotePairs(one, two):
-
     if len(one) != len(two):
         return ArithmeticError
 
@@ -179,6 +238,7 @@ def majorityVotePairs(one, two):
 
     return onetwo
 
+
 def majorityVoteTriple(one, two, three):
     if len(one) != len(two) or len(one) != len(three) or len(two) != len(three):
         return ArithmeticError
@@ -193,7 +253,7 @@ def majorityVoteTriple(one, two, three):
         sum = onei[0] + twoi[0] + threei[0]
 
         if onei[1] == twoi[1] and onei[1] == threei[1]:
-            # la maggior parte è fraudolenta
+            # La maggior parte è fraudolenta (almeno 2/3)
             if sum == 3.0 or sum == 2.0:
                 onetwothree.append((onei[1], 1.0))
             else:
@@ -205,7 +265,6 @@ def majorityVoteTriple(one, two, three):
 
 
 def majorityVoteQuadruple(one, two, three, four):
-
     if len(one) != len(two) or len(one) != len(three) or len(one) != len(four) \
             or len(two) != len(three) or len(two) != len(four) \
             or len(three) != len(four):
@@ -222,7 +281,7 @@ def majorityVoteQuadruple(one, two, three, four):
         sum = onei[0] + twoi[0] + threei[0] + fouri[0]
 
         if onei[1] == twoi[1] and onei[1] == threei[1] and onei[1] == fouri[1]:
-            # la maggior parte è fraudolenta
+            # La maggior parte è fraudolenta (almeno 3/4)
             if sum == 4.0 or sum == 3.0:
                 onetwothreefour.append((onei[1], 1.0))
             else:
@@ -232,8 +291,8 @@ def majorityVoteQuadruple(one, two, three, four):
 
     return onetwothreefour
 
-def majorityVoteQuintuple(one, two, three, four, five):
 
+def majorityVoteQuintuple(one, two, three, four, five):
     if len(one) != len(two) or len(one) != len(three) or len(one) != len(four) or len(one) != len(five) \
             or len(two) != len(three) or len(two) != len(four) or len(two) != len(five) \
             or len(three) != len(four) or len(three) != len(five) \
@@ -252,7 +311,7 @@ def majorityVoteQuintuple(one, two, three, four, five):
         sum = onei[0] + twoi[0] + threei[0] + fouri[0] + fivei[0]
 
         if onei[1] == twoi[1] and onei[1] == threei[1] and onei[1] == fouri[1] and onei[1] == fivei[1]:
-            # la maggior parte è fraudolenta
+            # La maggior parte è fraudolenta (almeno 3/5)
             if sum == 5.0 or sum == 4.0 or sum == 3.0:
                 onetwothreefourfive.append((onei[1], 1.0))
             else:
@@ -264,7 +323,8 @@ def majorityVoteQuintuple(one, two, three, four, five):
 
 
 if __name__ == '__main__':
+    used_dataset = 1
 
-    bestResults = getBestResults(num_classifiers=6)
+    bestResults = getBestResults(num_classifiers=6, used_dataset=used_dataset)
     predALab = getLabelsAndPredictions(bestResults)
-    boh = ensembler(predALab)
+    ensembler(predALab, used_dataset=used_dataset)
