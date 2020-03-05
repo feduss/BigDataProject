@@ -75,6 +75,7 @@ def ResultAnalysis(classifiers, source_file, destination_file):
                                     "AUC": float("{0:.4f}".format(mean(AUC))),
                                     "Exec_Time": float("{0:.4f}".format(mean(exec_time)))})
 
+                    '''
                     standDev.append({"Sensitivity": float("{0:.4f}".format(stdev(sensitivity))),
                                      "Fallout": float("{0:.4f}".format(stdev(fallout))),
                                      "Specificity": float("{0:.4f}".format(stdev(specificity))),
@@ -82,6 +83,14 @@ def ResultAnalysis(classifiers, source_file, destination_file):
                                      "Test_Error": float("{0:.4f}".format(stdev(test_error))),
                                      "AUC": float("{0:.4f}".format(stdev(AUC))),
                                      "Exec_Time": float("{0:.4f}".format(stdev(exec_time)))})
+                    '''
+                    standDev.append({"Sensitivity": 0.0,
+                                     "Fallout": 0.0,
+                                     "Specificity": 0.0,
+                                     "Miss_Rate": 0.0,
+                                     "Test_Error": 0.0,
+                                     "AUC": 0.0,
+                                     "Exec_Time": 0.0})
 
                     csvWriter.writerow([str(j+1), str(average[j]["Sensitivity"]), str(standDev[j]["Sensitivity"]),
                                         str(average[j]["Fallout"]), str(standDev[j]["Fallout"]),
@@ -99,7 +108,7 @@ def ResultAnalysis(classifiers, source_file, destination_file):
                         if average[j]["Exec_Time"] < average[min_index]["Exec_Time"]:
                             min_index = j
 
-                csvWriter.writerow(["Best version of " + name + " is test n°" + str(min_index)])
+                csvWriter.writerow(["Best version of " + name + " is test n°" + str(min_index + 1)])
 
                 csvWriter.writerow(["With " + str(len(param_names)) + " parameters:"])
                 for j in range(len(param_names)):

@@ -4,6 +4,7 @@ from pyspark.mllib.regression import LabeledPoint
 from pyspark.shell import sc
 
 import MetricsEvalutation as ma
+import ResultAnalysis as ra
 import SetsCreation
 from Classifiers import DecisionTree, RandomForest, RandomForest_sklearn, GradientBoostedTree, LogisticRegression, LinearSVC
 
@@ -51,7 +52,7 @@ def getBestResults(num_classifiers, used_dataset):
         return best_result_lines
 
 
-def getLabelsAndPredictions(best_result_lines):
+def getLabelsAndPredictions(best_result_lines, used_dataset):
     datas = SetsCreation.setsCreation(1, 2)
 
     (trainingData, testData) = datas[0]
@@ -63,45 +64,57 @@ def getLabelsAndPredictions(best_result_lines):
 
     labelsAndPredictions = {}
 
-    for i in range(len(best_result_lines)):
-        row = best_result_lines[i]
-        parameters = row[2]
-        if i is 0:
-            labelsAndPredictions.update({row[0]: DecisionTree.decisionTree(c_trainingData, c_testData,
-                                                                           parameters[0], int(parameters[1]),
-                                                                           int(parameters[2])
-                                                                           ).collect()})
-            print("1/6")
-        elif i is 1:
-            labelsAndPredictions.update({row[0]: RandomForest.randomForest(c_trainingData, c_testData,
-                                                                           parameters[0], int(parameters[1]),
-                                                                           int(parameters[2]), int(parameters[3])
-                                                                           ).collect()})
-            print("2/6")
-        elif i is 2:
-            labelsAndPredictions.update({row[0]: RandomForest_sklearn.randomForest(c_trainingData, c_testData,
-                                                                                   int(parameters[1]), parameters[0],
-                                                                                   int(parameters[2]), parameters[3]
-                                                                                   ).collect()})
-            print("3/6")
-        elif i is 3:
-            labelsAndPredictions.update({row[0]: GradientBoostedTree.gradientBoostedTrees(c_trainingData, c_testData,
-                                                                                          parameters[0], int(parameters[3]),
-                                                                                          int(parameters[1]), int(parameters[2])
-                                                                                          ).collect()})
-            print("4/6")
-        elif i is 4:
-            labelsAndPredictions.update({row[0]: LogisticRegression.logisticRegression(trainingData, testData,
-                                                                                       int(parameters[0]), float(parameters[1]),
-                                                                                       float(parameters[2]), int(parameters[3])
-                                                                                       ).collect()})
-            print("5/6")
-        elif i is 5:
-            labelsAndPredictions.update({row[0]: LinearSVC.linearSVC(trainingData, testData,
-                                                                     int(parameters[0]), float(parameters[1]),
-                                                                     int(parameters[2])
-                                                                     ).collect()})
-            print("6/6")
+    with open("CSV Results/ensembles_metrics" + str(used_dataset) + ".csv", "w") as ensemble_metric:
+        csvWriter = csv.writer(ensemble_metric)
+
+        csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
+
+        for i in range(len(best_result_lines)):
+            row = best_result_lines[i]
+            parameters = row[2]
+            if i is 0:
+                labelsAndPredictions.update({row[0]: DecisionTree.decisionTree(c_trainingData, c_testData,
+                                                                               parameters[0], int(parameters[1]),
+                                                                               int(parameters[2])
+                                                                               ).collect()})
+                print("1/5")
+            elif i is 1:
+                labelsAndPredictions.update({row[0]: RandomForest.randomForest(c_trainingData, c_testData,
+                                                                               parameters[0], int(parameters[1]),
+                                                                               int(parameters[2]), int(parameters[3])
+                                                                               ).collect()})
+                print("2/5")
+            elif i is 2:
+                labelsAndPredictions.update({row[0]: GradientBoostedTree.gradientBoostedTrees(c_trainingData, c_testData,
+                                                                                              parameters[0], int(parameters[3]),
+                                                                                              int(parameters[1]), int(parameters[2])
+                                                                                              ).collect()})
+                print("3/5")
+            elif i is 3:
+                labelsAndPredictions.update({row[0]: LogisticRegression.logisticRegression(trainingData, testData,
+                                                                                           int(parameters[0]), float(parameters[1]),
+                                                                                           float(parameters[2]), int(parameters[3])
+                                                                                           ).collect()})
+                print("4/5")
+            elif i is 4:
+                labelsAndPredictions.update({row[0]: LinearSVC.linearSVC(trainingData, testData,
+                                                                         int(parameters[0]), float(parameters[1]),
+                                                                         int(parameters[2])
+                                                                         ).collect()})
+                print("5/5")
+
+        for key in list(labelsAndPredictions.keys()):
+            result = ma.metricsEvalutation(sc.parallelize(labelsAndPredictions[key]), len(labelsAndPredictions[key]), False)
+            classifier_name = ""
+            if(key == "Decision_Tree MLLib"): classifier_name = "DT"
+            elif(key == "Random_Forest MLLib"): classifier_name = "RF"
+            elif(key == "Gradient Boosted Tree"): classifier_name = "GBT"
+            elif(key == "Logistic Regression"): classifier_name = "LR"
+            elif(key == "LinearSVC"): classifier_name = "LSVC"
+
+            csvWriter.writerow([classifier_name, str(result.sensitivity), str(result.fallout),
+                                str(result.specificity), str(result.missRate),
+                                str(result.testErr), str(result.AUC)])
 
     return labelsAndPredictions
 
@@ -205,10 +218,10 @@ def ensembler(predALab, used_dataset):
 
     result.update({list(ensembleQuintuple.keys())[0]: ma.metricsEvalutation(sc.parallelize(list(ensembleQuintuple.values())[0]), len(list(ensembleQuintuple.values())[0]), False)})
 
-    with open("CSV Results/ensembles_metrics" + str(used_dataset) + ".csv", "w") as ensemble_metric:
+    with open("CSV Results/ensembles_metrics" + str(used_dataset) + ".csv", "a") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)
 
-        csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
+        # csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
         for i in range(len(list(result.keys()))):
             csvWriter.writerow([list(result.keys())[i],
                                 str(list(result.values())[i].sensitivity), str(list(result.values())[i].fallout),
@@ -323,8 +336,12 @@ def majorityVoteQuintuple(one, two, three, four, five):
 
 
 if __name__ == '__main__':
-    used_dataset = 1
 
-    bestResults = getBestResults(num_classifiers=6, used_dataset=used_dataset)
-    predALab = getLabelsAndPredictions(bestResults)
-    ensembler(predALab, used_dataset=used_dataset)
+
+    ra.ResultAnalysis(5, 'classifiers_metrics1_final', 'results1_final')
+    ra.ResultAnalysis(5, 'classifiers_metrics2_final', 'results2_final')
+
+    for i in range(1,3):
+        bestResults = getBestResults(num_classifiers=5, used_dataset=i)
+        predALab = getLabelsAndPredictions(bestResults, used_dataset=i)
+        ensembler(predALab, used_dataset=i)
