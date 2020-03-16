@@ -53,7 +53,7 @@ def metricsEvalutation(predictionsAndLabels, elementNumber, verbose):
     results = Results(sensitivity, fallout, specificity, missRate, AUC, testErr)
 
     # Stampe varie
-    if(verbose):
+    if verbose:
         print('Record del test set = ' + str(predictionsAndLabels.count()))
         print('Totali = ' + str(TP + TN + FP + FN) + '\n')
 
@@ -70,10 +70,6 @@ def metricsEvalutation(predictionsAndLabels, elementNumber, verbose):
 
         print('AUC = ' + str(results.AUC * 100) + '%')
         print('Test Error = ' + str(results.testErr * 100) + '%')
-
-        # print('Learned classification tree model:')
-        # print(model.toDebugString())
-
     return results
 
 

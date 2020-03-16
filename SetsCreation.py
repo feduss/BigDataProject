@@ -6,10 +6,15 @@ from pyspark.shell import sc, spark
 
 
 def setsCreation(multiplier, dataset):
+    if dataset < 3:
+        source_file = "creditcard_undersampled" + str(dataset % 2)
+    else:
+        source_file = "creditcard_normalized" + str(dataset % 2)
+
     datas = []
 
     # Leggo il ds con pandas
-    p_df = pd.read_csv('CSV_Sources/creditcard_undersampled' + str(dataset) + '.csv')
+    p_df = pd.read_csv("CSV_Sources/" + source_file + ".csv")
 
     # Converto il ds pandas in un ds spark, dando un numero di partition pari alla radice quadrata degli elementi
     s_df = spark.createDataFrame(p_df).repartition(int(math.sqrt(len(p_df))))

@@ -2,7 +2,7 @@ import csv
 from statistics import mean, stdev
 
 
-def ResultAnalysis(classifiers, source_file, destination_file):
+def ResultAnalysis(source_file, destination_file, classifiers):
     # used_dataset = 2  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
     # classifiers = 6   # Da aggiornare con il numero di classificatori contenuti nel file
 
@@ -75,22 +75,22 @@ def ResultAnalysis(classifiers, source_file, destination_file):
                                     "AUC": float("{0:.4f}".format(mean(AUC))),
                                     "Exec_Time": float("{0:.4f}".format(mean(exec_time)))})
 
-                    '''
-                    standDev.append({"Sensitivity": float("{0:.4f}".format(stdev(sensitivity))),
-                                     "Fallout": float("{0:.4f}".format(stdev(fallout))),
-                                     "Specificity": float("{0:.4f}".format(stdev(specificity))),
-                                     "Miss_Rate": float("{0:.4f}".format(stdev(miss_rate))),
-                                     "Test_Error": float("{0:.4f}".format(stdev(test_error))),
-                                     "AUC": float("{0:.4f}".format(stdev(AUC))),
-                                     "Exec_Time": float("{0:.4f}".format(stdev(exec_time)))})
-                    '''
-                    standDev.append({"Sensitivity": 0.0,
-                                     "Fallout": 0.0,
-                                     "Specificity": 0.0,
-                                     "Miss_Rate": 0.0,
-                                     "Test_Error": 0.0,
-                                     "AUC": 0.0,
-                                     "Exec_Time": 0.0})
+                    if multi > 1:
+                        standDev.append({"Sensitivity": float("{0:.4f}".format(stdev(sensitivity))),
+                                         "Fallout": float("{0:.4f}".format(stdev(fallout))),
+                                         "Specificity": float("{0:.4f}".format(stdev(specificity))),
+                                         "Miss_Rate": float("{0:.4f}".format(stdev(miss_rate))),
+                                         "Test_Error": float("{0:.4f}".format(stdev(test_error))),
+                                         "AUC": float("{0:.4f}".format(stdev(AUC))),
+                                         "Exec_Time": float("{0:.4f}".format(stdev(exec_time)))})
+                    else :
+                        standDev.append({"Sensitivity": 0.0,
+                                         "Fallout": 0.0,
+                                         "Specificity": 0.0,
+                                         "Miss_Rate": 0.0,
+                                         "Test_Error": 0.0,
+                                         "AUC": 0.0,
+                                         "Exec_Time": 0.0})
 
                     csvWriter.writerow([str(j+1), str(average[j]["Sensitivity"]), str(standDev[j]["Sensitivity"]),
                                         str(average[j]["Fallout"]), str(standDev[j]["Fallout"]),
