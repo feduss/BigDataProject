@@ -6,8 +6,8 @@ def ResultAnalysis(classifiers, source_file, destination_file):
     # used_dataset = 2  # Dataset utilizzato per creare e testare i classificatori; valori: [1, 2]
     # classifiers = 6   # Da aggiornare con il numero di classificatori contenuti nel file
 
-    with open('CSV Results/' + source_file + '.csv', 'r') as metrics_reader:
-        with open('CSV Results/' + destination_file + '.csv', 'w') as result_file:
+    with open('CSV_Results/' + source_file + '.csv', 'r') as metrics_reader:
+        with open('CSV_Results/' + destination_file + '.csv', 'w') as result_file:
             csvWriter = csv.writer(result_file)
 
             # Recupero il moltiplicatore usato nell'analisi da valutare

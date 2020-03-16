@@ -14,8 +14,9 @@ from pyspark.mllib.linalg import Vectors
 from pyspark.shell import spark, sc
 from pyspark.sql import functions as F
 
-dataset = pd.read_csv('CSV Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
+dataset = pd.read_csv('CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
 
+'''
 # Calcolo il numero di frodi e non frodi presenti
 no_frauds = len(dataset[dataset['Class'] == 0])
 frauds = len(dataset[dataset['Class'] == 1])
@@ -35,12 +36,13 @@ under_sample_indices = np.concatenate([fraud_indices, random_indices])
 
 # Ottengo il nuovo dataset undersampled
 under_sample = dataset.loc[under_sample_indices]
-
+'''
 # Metodo 1
 # Normalizzo i dati delle colonne delle transazioni (V1, V2, ...)
 
 start_time = time.time()
-under_sample = dataset.loc[under_sample_indices].sort_values('Time')
+#under_sample = dataset.loc[under_sample_indices].sort_values('Time')
+under_sample = dataset.sort_values('Time')
 norm_sample = under_sample
 for name_class in dataset.columns:
     if str(name_class).startswith("V"):
@@ -57,10 +59,11 @@ for name_class in dataset.columns:
             print("Valore max: " + str(max_value) +", valore min: " + str(min_value))
 
 # Apro il ds iniziale
-with open("CSV Sources/creditcard.csv") as original_dataset:
+with open("CSV_Sources/creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    with open('CSV Sources/creditcard_undersampled1.csv', 'w') as new_dataset:
+    #with open('CSV_Sources/creditcard_undersampled1.csv', 'w') as new_dataset:
+    with open('CSV_Sources/creditcard_normalized1.csv', 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe
@@ -113,10 +116,11 @@ norm_sample = norm_sample.join(labelsDF, norm_sample.Time == labelsDF.Time, how=
 # norm_sample.show()
 
 # Apro il ds iniziale
-with open("CSV Sources/creditcard.csv") as original_dataset:
+with open("CSV_Sources/creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    with open('CSV Sources/creditcard_undersampled2.csv', 'w') as new_dataset:
+    #with open('CSV_Sources/creditcard_undersampled2.csv', 'w') as new_dataset:
+    with open('CSV_Sources/creditcard_normalized2.csv', 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe

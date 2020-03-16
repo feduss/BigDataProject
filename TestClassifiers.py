@@ -68,8 +68,8 @@ def mainTestClassifier(verbose, multiplier, used_dataset):
     m_min_err = -1
     result_min = me.Results(1, 1, 1, 1, 1, 1)
 
-    with open('CSV Results/classifiers_metrics' + str(used_dataset) + '_final.csv', 'w') as metric_file:
-        with open('CSV Results/best_classifiers_metrics' + str(used_dataset) + '_final.csv', 'w') as best_metric_file:
+    with open('CSV_Results/classifiers_metrics' + str(used_dataset) + '_final.csv', 'w') as metric_file:
+        with open('CSV_Results/best_classifiers_metrics' + str(used_dataset) + '_final.csv', 'w') as best_metric_file:
             csvWriter = csv.writer(metric_file)
             csvBestWriter = csv.writer(best_metric_file)
 

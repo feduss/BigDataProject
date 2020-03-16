@@ -9,7 +9,7 @@ def setsCreation(multiplier, dataset):
     datas = []
 
     # Leggo il ds con pandas
-    p_df = pd.read_csv('CSV Sources/creditcard_undersampled' + str(dataset) + '.csv')
+    p_df = pd.read_csv('CSV_Sources/creditcard_undersampled' + str(dataset) + '.csv')
 
     # Converto il ds pandas in un ds spark, dando un numero di partition pari alla radice quadrata degli elementi
     s_df = spark.createDataFrame(p_df).repartition(int(math.sqrt(len(p_df))))

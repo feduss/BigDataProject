@@ -10,7 +10,7 @@ from Classifiers import DecisionTree, RandomForest, RandomForest_sklearn, Gradie
 
 
 def getBestResults(num_classifiers, used_dataset):
-    with open('CSV Results/results' + str(used_dataset) + '_final.csv', 'r') as resultsReader:
+    with open('CSV_Results/results' + str(used_dataset) + '_final.csv', 'r') as resultsReader:
         best_result_lines = []
 
         # Ottengo i parametri del miglior risultato dei test di ogni classificatore
@@ -64,7 +64,7 @@ def getLabelsAndPredictions(best_result_lines, used_dataset):
 
     labelsAndPredictions = {}
 
-    with open("CSV Results/ensembles_metrics" + str(used_dataset) + ".csv", "w") as ensemble_metric:
+    with open("CSV_Results/ensembles_metrics" + str(used_dataset) + ".csv", "w") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)
 
         csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
@@ -218,7 +218,7 @@ def ensembler(predALab, used_dataset):
 
     result.update({list(ensembleQuintuple.keys())[0]: ma.metricsEvalutation(sc.parallelize(list(ensembleQuintuple.values())[0]), len(list(ensembleQuintuple.values())[0]), False)})
 
-    with open("CSV Results/ensembles_metrics" + str(used_dataset) + ".csv", "a") as ensemble_metric:
+    with open("CSV_Results/ensembles_metrics" + str(used_dataset) + ".csv", "a") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)
 
         # csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
