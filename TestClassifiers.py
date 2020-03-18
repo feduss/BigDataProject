@@ -21,11 +21,12 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
     # File per testare diversi trainingset e testset sui classificatori implementati, fornendo diversi parametri
     datas = SetsCreation.setsCreation(multiplier, used_dataset)
 
-    # DecisionTree (libreria MLLib) = DT
-    # RandomForest (libreria MLLib) = RF
-    # GradientBoostedTree (libreria MLLib) = GBT
-    # Logistic Regression (libreria ML.classification) = LR
-    # LinearSVC (libreria ML.classification) = LSVC
+    # Tutti i classificatori derivano dalla libreria ML.classification
+    # DecisionTree        = DT
+    # RandomForest        = RF
+    # GradientBoostedTree = GBT
+    # Logistic Regression = LR
+    # LinearSVC           = LSVC
 
     impurity = ['gini', 'entropy']  # DT, RF
     maxDepth = [5, 6, 7]            # DT, RF
@@ -38,7 +39,6 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
     numTrees = [100, 200]
 
     # Solo Gradient Boosted
-    # loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
     maxDepth2 = [3, 5]
 
     # Solo Logistic Regression
@@ -112,6 +112,7 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
         j = -1
         k = -1
         l = -1
+        m = -1
         iter_count = 0
 
         # RANDOM FOREST

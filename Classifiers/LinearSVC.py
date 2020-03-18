@@ -1,32 +1,74 @@
 from pyspark.ml.classification import LinearSVC
+from pyspark.ml.evaluation import BinaryClassificationEvaluator
 from pyspark.ml.linalg import Vectors
+from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 
+
+# https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#pyspark.ml.classification.LinearSVC
+# featuresCol      : Features column name
+# labelCol         : Label column name
+# predictionCol    : Prediction column name
+# maxIter          : Max number of iterations (>= 0)
+# regParam         : Regularization parameter (>= 0)
+# tol              : The convergence tolerance for iterative algorithms (>= 0)
+# rawPredictionCol : Raw prediction (a.k.a. confidence) column name
+# fitIntercept     : Whether to fit an intercept term
+# standardization  : Whether to standardize the training features before fitting the model
+# threshold        : The threshold in binary classification applied to the linear model prediction.
+#                    This threshold can be any real number, where Inf will make all predictions 0.0
+#                    and -Inf will make all predictions 1.0
+# weightCol        : Weight column name. If this is not set or empty, we treat all instance weights as 1.0
+# aggregationDepth : Suggested depth for treeAggregate (>= 2)
 
 def linearSVC(trainingData, testData, featuresCol="features", labelCol="label", predictionCol="prediction",
                  maxIter=100, regParam=0.0, tol=1e-6, rawPredictionCol="rawPrediction",
-                 fitIntercept = True, standardization = False, threshold=0.0, weightCol=None,
+                 fitIntercept = True, standardization=False, threshold=0.0, weightCol=None,
                  aggregationDepth=2):
 
-    lsvc = LinearSVC(maxIter=10, regParam=0.1, standardization = standardization, aggregationDepth = aggregationDepth)
+    # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
+    lsvc = LinearSVC(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxIter=maxIter,
+                     regParam=regParam, tol=tol, rawPredictionCol=rawPredictionCol, fitIntercept=fitIntercept,
+                     standardization=standardization, threshold=threshold, weightCol=weightCol,
+                     aggregationDepth=aggregationDepth)
+
+    # Creo la mappa dei parametri
+    # TODO RIVEDERE
+    paramGrid = ParamGridBuilder().build()
+
+    # Inizializzo l'evaluator
+    evaluator = BinaryClassificationEvaluator()
+
+    # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
+    crossVal = CrossValidator(estimator=lsvc,
+                              estimatorParamMaps=paramGrid,
+                              evaluator=evaluator,
+                              numFolds=5)  # use 3+ folds in practice
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
     trainingFeatures = trainingData.map(lambda x: x[:30])
 
     # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
-    trainingData = trainingFeatures.map(lambda x: Vectors.dense(x)).zip(trainingLabels).toDF(
-        schema=['features', 'label'])
+    trainingData = trainingFeatures \
+        .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
+        .toDF(schema=['features', 'label'])
 
-    model = lsvc.fit(trainingData)
+    # Genero il modello addestrato attraverso la cross validation
+    cvModel = crossVal.fit(trainingData)
+    # model = lsvc.fit(trainingData)
 
-    # Separo le classi (label) dalle features per il trainingSet
+    # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
     testFeatures = testData.map(lambda x: x[:30])
 
-    testData = testFeatures.map(lambda x: Vectors.dense(x)).zip(testLabels).toDF(schema=['features', 'label'])
+    # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
+    testData = testFeatures \
+        .map(lambda x: Vectors.dense(x)).zip(testLabels) \
+        .toDF(schema=['features', 'label'])
 
     # Calcolo le predizioni
-    result = model.transform(testData)
+    result = cvModel.transform(testData)
+    # result = model.transform(testData)
 
     # Converto i risultati nel formato corretto
     # labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
