@@ -12,7 +12,7 @@ if __name__ == "__main__":
     analysis_file = "results"
     ensemble_file = "ensembles_metrics"
 
-    for i in range(1, 5):
+    for i in range(1, 3):
         if i == 1:              # dataset = creditcard_undersampled1
             dataset_code = "_u1"
         elif i == 2:            # dataset = creditcard_undersampled2

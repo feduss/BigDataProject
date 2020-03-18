@@ -38,7 +38,7 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
     numTrees = [100, 200]
 
     # Solo Gradient Boosted
-    loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
+    # loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
     maxDepth2 = [3, 5]
 
     # Solo Logistic Regression
@@ -87,12 +87,10 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
                     sys.stdout.flush()
 
                 (trainingData, testData) = datas[t]
-                c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-                c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
                 testRecordsNumber = float(testData.count())
 
                 start_time = time.time()
-                predictionsAndLabels = cdt.decisionTree(c_trainingData, c_testData, impurity[j], maxDepth[k],
+                predictionsAndLabels = cdt.decisionTree(trainingData, testData, impurity[j], maxDepth[k],
                                                         maxBins[l])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
 
@@ -148,12 +146,10 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
                     sys.stdout.flush()
 
                 (trainingData, testData) = datas[t]
-                c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-                c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
                 testRecordsNumber = float(testData.count())
 
                 start_time = time.time()
-                predictionsAndLabels = crf.randomForest(c_trainingData, c_testData, impurity[j], maxDepth[k],
+                predictionsAndLabels = crf.randomForest(trainingData, testData, impurity[j], maxDepth[k],
                                                         maxBins[l], numTrees[m])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
 
@@ -241,19 +237,18 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
         iter_count = 0
 
         # GRADIENT BOOSTED TREE ML.classification
-        # loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError']
+        # loss = ['logLoss', 'leastSquaresError', 'leastAbsoluteError'] DA ELIMINARE
         # maxDepth2 = [3, 5]
         # maxBins = [32, 64, 128]
         # numIterations = [50, 100]
 
-        max_count = len(loss) * len(maxDepth2) * len(maxBins) * len(numIterations)
+        max_count = len(maxDepth2) * len(maxBins) * len(numIterations)
         csvWriter.writerow(['Gradient_Boosted_Tree: ' + str(max_count) + ' different tests'])
-        csvWriter.writerow(['Iteration', 'Loss', 'Max_Depth', 'Max_Bins', 'Num_Iterations',
+        csvWriter.writerow(['Iteration', 'Max_Depth', 'Max_Bins', 'Num_Iterations',
                             'Sensitivity', 'Fallout', 'Specificity', 'Miss_rate',
                             'Test_Error', 'AUC', 'Exec_Time'])
 
         for i in range(0, max_count):
-            j = int(i / (len(maxDepth2) * len(maxBins) * len(numIterations)))  # loss
             k = int(i / (len(maxBins) * len(numIterations))) % len(maxDepth2)  # maxDepth2
             l = int(i / len(numIterations)) % len(maxBins)                     # maxBins
             m = i % len(numIterations)                                         # numIterations
@@ -262,7 +257,7 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
                 if verbose:
                     print("\n--------------------------------------------------\n")
                     print("Test " + str(i+1) + "." + str(t+1)
-                          + " con loss: " + loss[j] + ", maxDepth: " + str(maxDepth2[k])
+                          + "con maxDepth: " + str(maxDepth2[k])
                           + ", maxBins: " + str(maxBins[l]) + ", numIterations: " + str(numIterations[m]))
                 else:
                     iter_count = (i * multiplier) + t
@@ -272,19 +267,17 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
                     sys.stdout.flush()
 
                 (trainingData, testData) = datas[t]
-                c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-                c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
                 testRecordsNumber = float(testData.count())
 
                 start_time = time.time()
-                predictionsAndLabels = cgbt.gradientBoostedTrees(c_trainingData, c_testData, loss[j],
+                predictionsAndLabels = cgbt.gradientBoostedTrees(trainingData, testData,
                                                                  numIterations[m], maxDepth2[k], maxBins[l])
                 end_time = float("{0:.3f}".format(time.time() - start_time))
 
                 results = me.metricsEvalutation(predictionsAndLabels, testRecordsNumber, verbose)
 
                 csvWriter.writerow([str(i+1) + "." + str(t+1),
-                                    loss[j], str(maxDepth2[k]), str(maxBins[l]), str(numIterations[m]),
+                                    str(maxDepth2[k]), str(maxBins[l]), str(numIterations[m]),
                                     str(results.sensitivity), str(results.fallout), str(results.specificity),
                                     str(results.missRate), str(results.testErr), str(results.AUC), str(end_time)])
 
