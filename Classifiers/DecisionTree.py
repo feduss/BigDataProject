@@ -3,6 +3,7 @@ from pyspark.ml.evaluation import BinaryClassificationEvaluator
 from pyspark.ml.linalg import Vectors
 from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 
+
 # https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#pyspark.ml.classification.DecisionTreeClassifier
 # featuresCol         : Features column name
 # labelCol            : Label column name
@@ -30,13 +31,12 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 #                       Supported options: entropy, gini
 # seed                : Random seed
 
-def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCrossValidator = False, featuresCol='features', labelCol='label',
-                 predictionCol='prediction', probabilityCol='probability',
-                 rawPredictionCol='rawPrediction', minInstancesPerNode=1, minInfoGain=0.0,
-                 maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, seed=None):
+def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCrossValidator=False,
+                 featuresCol='features', labelCol='label', predictionCol='prediction', probabilityCol='probability',
+                 rawPredictionCol='rawPrediction', minInstancesPerNode=1, minInfoGain=0.0, maxMemoryInMB=256,
+                 cacheNodeIds=False, checkpointInterval=10, seed=None):
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
-
     dtc = DecisionTreeClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol,
                                  probabilityCol=probabilityCol, rawPredictionCol=rawPredictionCol,
                                  maxDepth=maxDepth, maxBins=maxBins, minInstancesPerNode=minInstancesPerNode,
@@ -44,10 +44,10 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
                                  checkpointInterval=checkpointInterval, impurity=impurity,
                                  seed=seed)
 
-    if(enableCrossValidator):
+    # In caso di cross validation
+    if enableCrossValidator:
         # Creo la mappa dei parametri
-        paramGrid = ParamGridBuilder() \
-            .build()
+        paramGrid = ParamGridBuilder().build()
 
         # Inizializzo l'evaluator
         evaluator = BinaryClassificationEvaluator()
@@ -63,17 +63,13 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
     trainingFeatures = trainingData.map(lambda x: x[:30])
 
     # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
-    trainingData = trainingFeatures\
-        .map(lambda x: Vectors.dense(x)).zip(trainingLabels)\
+    trainingData = trainingFeatures \
+        .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    if(enableCrossValidator):
-        # Genero il modello addestrato attraverso la cross validation
+    # Genero il modello (addestrato attraverso la cross validation, o con i parametri in input)
+    if enableCrossValidator:
         model = crossVal.fit(trainingData)
-
-        # bestPipeline = model.bestModel
-        # bestImpurity = bestPipeline._java_obj.getImpurity()
-
     else:
         model = dtc.fit(trainingData)
 
@@ -82,8 +78,8 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
     testFeatures = testData.map(lambda x: x[:30])
 
     # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
-    testData = testFeatures\
-        .map(lambda x: Vectors.dense(x)).zip(testLabels)\
+    testData = testFeatures \
+        .map(lambda x: Vectors.dense(x)).zip(testLabels) \
         .toDF(schema=['features', 'label'])
 
     # Calcolo le predizioni

@@ -40,8 +40,8 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 # seed                  : Random seed
 # subsamplingRate       : Fraction of the training data used for learning each decision tree, in range (0, 1]
 
-def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, enableCrossValidator = False,featuresCol='features',
-                 labelCol='label', predictionCol='prediction', probabilityCol='probability',
+def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, enableCrossValidator=False,
+                 featuresCol='features', labelCol='label', predictionCol='prediction', probabilityCol='probability',
                  rawPredictionCol='rawPrediction', minInstancesPerNode=1, minInfoGain=0.0, maxMemoryInMB=256,
                  cacheNodeIds=False, checkpointInterval=10, featureSubsetStrategy='auto', seed=None,
                  subsamplingRate=1.0):
@@ -55,7 +55,8 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                                  featureSubsetStrategy=featureSubsetStrategy, seed=seed,
                                  subsamplingRate=subsamplingRate)
 
-    if(enableCrossValidator):
+    # In caso di cross validation
+    if enableCrossValidator:
         # Creo la mappa dei parametri
         paramGrid = ParamGridBuilder().build()
 
@@ -77,8 +78,8 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    if(enableCrossValidator):
-        # Genero il modello addestrato attraverso la cross validation
+    # Genero il modello (addestrato attraverso la cross validation, o con i parametri in input)
+    if enableCrossValidator:
         model = crossVal.fit(trainingData)
     else:
         model = rfc.fit(trainingData)

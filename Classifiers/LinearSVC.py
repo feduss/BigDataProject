@@ -31,7 +31,8 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
                      standardization=standardization, threshold=threshold, weightCol=weightCol,
                      aggregationDepth=aggregationDepth)
 
-    if(enableCrossValidator):
+    # In caso di cross validation
+    if enableCrossValidator:
         # Creo la mappa dei parametri
         paramGrid = ParamGridBuilder().build()
 
@@ -53,8 +54,8 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    if(enableCrossValidator):
-        # Genero il modello addestrato attraverso la cross validation
+    # Genero il modello (addestrato attraverso la cross validation, o con i parametri in input)
+    if enableCrossValidator:
         model = crossVal.fit(trainingData)
     else:
         model = lsvc.fit(trainingData)

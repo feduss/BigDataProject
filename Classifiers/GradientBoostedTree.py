@@ -40,10 +40,11 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 #                         'n' (when n is in the range (0, 1.0], use n * number of features.
 #                         When n is in the range (1, number of features), use n features). default = 'auto'
 
-def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, enableCrossValidtor = False,featuresCol='features', labelCol='label',
-                         predictionCol='prediction', minInstancesPerNode=1, minInfoGain=0.0, maxMemoryInMB=256,
-                         cacheNodeIds=False, checkpointInterval=10, lossType='logistic', stepSize=0.1, seed=None,
-                         subsamplingRate=1.0, featureSubsetStrategy='all'):
+def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, enableCrossValidtor=False,
+                         featuresCol='features', labelCol='label', predictionCol='prediction', minInstancesPerNode=1,
+                         minInfoGain=0.0, maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10,
+                         lossType='logistic', stepSize=0.1, seed=None, subsamplingRate=1.0,
+                         featureSubsetStrategy='all'):
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     gbtc = GBTClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxDepth=maxDepth,
@@ -52,7 +53,8 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
                          lossType=lossType, maxIter=maxIter, stepSize=stepSize, seed=seed,
                          subsamplingRate=subsamplingRate, featureSubsetStrategy=featureSubsetStrategy)
 
-    if(enableCrossValidtor):
+    # In caso di cross validation
+    if enableCrossValidtor:
         # Creo la mappa dei parametri
         paramGrid = ParamGridBuilder().build()
 
@@ -74,8 +76,8 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    if(enableCrossValidtor):
-        # Genero il modello addestrato attraverso la cross validation
+    # Genero il modello (addestrato attraverso la cross validation, o con i parametri in input)
+    if enableCrossValidtor:
         model = crossVal.fit(trainingData)
     else:
         model = gbtc.fit(trainingData)

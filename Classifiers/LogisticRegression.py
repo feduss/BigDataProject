@@ -43,11 +43,11 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 #                             of classes for multinomial regression
 
 def logisticRegression(trainingData, testData, maxIter, regParam, elasticNetParam, aggregationDepth,
-                       enableCrossValidator = False,featuresCol="features", labelCol="label", predictionCol="prediction",
-                       tol=1e-6, fitIntercept=True, threshold=0.5, thresholds=None, probabilityCol="probability",
-                       rawPredictionCol="rawPrediction", standardization=False, weightCol=None, family="binomial",
-                       lowerBoundsOnCoefficients=None, upperBoundsOnCoefficients=None, lowerBoundsOnIntercepts=None,
-                       upperBoundsOnIntercepts=None):
+                       enableCrossValidator = False,featuresCol="features", labelCol="label",
+                       predictionCol="prediction", tol=1e-6, fitIntercept=True, threshold=0.5, thresholds=None,
+                       probabilityCol="probability", rawPredictionCol="rawPrediction", standardization=False,
+                       weightCol=None, family="binomial", lowerBoundsOnCoefficients=None,
+                       upperBoundsOnCoefficients=None, lowerBoundsOnIntercepts=None, upperBoundsOnIntercepts=None):
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     lrc = LogisticRegression(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxIter=maxIter,
@@ -60,7 +60,8 @@ def logisticRegression(trainingData, testData, maxIter, regParam, elasticNetPara
                              lowerBoundsOnIntercepts=lowerBoundsOnIntercepts,
                              upperBoundsOnIntercepts=upperBoundsOnIntercepts)
 
-    if(enableCrossValidator):
+    # In caso di cross validation
+    if enableCrossValidator:
         # Creo la mappa dei parametri
         paramGrid = ParamGridBuilder().build()
 
@@ -82,8 +83,8 @@ def logisticRegression(trainingData, testData, maxIter, regParam, elasticNetPara
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    if(enableCrossValidator):
-        # Genero il modello addestrato attraverso la cross validation
+    # Genero il modello (addestrato attraverso la cross validation, o con i parametri in input)
+    if enableCrossValidator:
         model = crossVal.fit(trainingData)
     else:
         model = lrc.fit(trainingData)
