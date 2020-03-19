@@ -40,7 +40,7 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 # seed                  : Random seed
 # subsamplingRate       : Fraction of the training data used for learning each decision tree, in range (0, 1]
 
-def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, featuresCol='features',
+def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, enableCrossValidator = False,featuresCol='features',
                  labelCol='label', predictionCol='prediction', probabilityCol='probability',
                  rawPredictionCol='rawPrediction', minInstancesPerNode=1, minInfoGain=0.0, maxMemoryInMB=256,
                  cacheNodeIds=False, checkpointInterval=10, featureSubsetStrategy='auto', seed=None,
@@ -55,18 +55,18 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                                  featureSubsetStrategy=featureSubsetStrategy, seed=seed,
                                  subsamplingRate=subsamplingRate)
 
-    # Creo la mappa dei parametri
-    # TODO RIVEDERE
-    paramGrid = ParamGridBuilder().build()
+    if(enableCrossValidator):
+        # Creo la mappa dei parametri
+        paramGrid = ParamGridBuilder().build()
 
-    # Inizializzo l'evaluator
-    evaluator = BinaryClassificationEvaluator()
+        # Inizializzo l'evaluator
+        evaluator = BinaryClassificationEvaluator()
 
-    # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
-    crossVal = CrossValidator(estimator=rfc,
-                              estimatorParamMaps=paramGrid,
-                              evaluator=evaluator,
-                              numFolds=5)  # use 3+ folds in practice
+        # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
+        crossVal = CrossValidator(estimator=rfc,
+                                  estimatorParamMaps=paramGrid,
+                                  evaluator=evaluator,
+                                  numFolds=5)  # use 3+ folds in practice
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -77,9 +77,11 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    # Genero il modello addestrato attraverso la cross validation
-    cvModel = crossVal.fit(trainingData)
-    # model = rfc.fit(trainingData)
+    if(enableCrossValidator):
+        # Genero il modello addestrato attraverso la cross validation
+        model = crossVal.fit(trainingData)
+    else:
+        model = rfc.fit(trainingData)
 
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
@@ -91,11 +93,9 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
         .toDF(schema=['features', 'label'])
 
     # Calcolo le predizioni
-    result = cvModel.transform(testData)
-    # result = model.transform(testData)
+    result = model.transform(testData)
 
     # Converto i risultati nel formato corretto
-    # labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
     predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
 
     return predictionsAndLabels

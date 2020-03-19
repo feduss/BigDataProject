@@ -75,31 +75,32 @@ def getLabelsAndPredictions(best_result_lines, destination_file):
             if i is 0:
                 labelsAndPredictions.update({row[0]: DecisionTree.decisionTree(c_trainingData, c_testData,
                                                                                parameters[0], int(parameters[1]),
-                                                                               int(parameters[2])
+                                                                               int(parameters[2], True)
                                                                                ).collect()})
                 print("1/5")
             elif i is 1:
                 labelsAndPredictions.update({row[0]: RandomForest.randomForest(c_trainingData, c_testData,
                                                                                parameters[0], int(parameters[1]),
-                                                                               int(parameters[2]), int(parameters[3])
+                                                                               int(parameters[2]), int(parameters[3],
+                                                                               True)
                                                                                ).collect()})
                 print("2/5")
             elif i is 2:
                 labelsAndPredictions.update({row[0]: GradientBoostedTree.gradientBoostedTrees(c_trainingData, c_testData,
                                                                                               parameters[0], int(parameters[3]),
-                                                                                              int(parameters[1]), int(parameters[2])
-                                                                                              ).collect()})
+                                                                                              int(parameters[1]), int(parameters[2]),
+                                                                                              True).collect()})
                 print("3/5")
             elif i is 3:
                 labelsAndPredictions.update({row[0]: LogisticRegression.logisticRegression(trainingData, testData,
                                                                                            int(parameters[0]), float(parameters[1]),
-                                                                                           float(parameters[2]), int(parameters[3])
-                                                                                           ).collect()})
+                                                                                           float(parameters[2]), int(parameters[3]),
+                                                                                           True).collect()})
                 print("4/5")
             elif i is 4:
                 labelsAndPredictions.update({row[0]: LinearSVC.linearSVC(trainingData, testData,
                                                                          int(parameters[0]), float(parameters[1]),
-                                                                         int(parameters[2])
+                                                                         int(parameters[2]), True
                                                                          ).collect()})
                 print("5/5")
 

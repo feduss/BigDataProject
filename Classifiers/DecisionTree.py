@@ -30,30 +30,33 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 #                       Supported options: entropy, gini
 # seed                : Random seed
 
-def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, featuresCol='features', labelCol='label',
+def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCrossValidator = False, featuresCol='features', labelCol='label',
                  predictionCol='prediction', probabilityCol='probability',
                  rawPredictionCol='rawPrediction', minInstancesPerNode=1, minInfoGain=0.0,
                  maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, seed=None):
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
+
     dtc = DecisionTreeClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol,
                                  probabilityCol=probabilityCol, rawPredictionCol=rawPredictionCol,
                                  maxDepth=maxDepth, maxBins=maxBins, minInstancesPerNode=minInstancesPerNode,
                                  minInfoGain=minInfoGain, maxMemoryInMB=maxMemoryInMB, cacheNodeIds=cacheNodeIds,
-                                 checkpointInterval=checkpointInterval, impurity=impurity, seed=seed)
+                                 checkpointInterval=checkpointInterval, impurity=impurity,
+                                 seed=seed)
 
-    # Creo la mappa dei parametri
-    # TODO RIVEDERE
-    paramGrid = ParamGridBuilder().build()
+    if(enableCrossValidator):
+        # Creo la mappa dei parametri
+        paramGrid = ParamGridBuilder() \
+            .build()
 
-    # Inizializzo l'evaluator
-    evaluator = BinaryClassificationEvaluator()
+        # Inizializzo l'evaluator
+        evaluator = BinaryClassificationEvaluator()
 
-    # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
-    crossVal = CrossValidator(estimator=dtc,
-                              estimatorParamMaps=paramGrid,
-                              evaluator=evaluator,
-                              numFolds=5)  # use 3+ folds in practice
+        # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
+        crossVal = CrossValidator(estimator=dtc,
+                                  estimatorParamMaps=paramGrid,
+                                  evaluator=evaluator,
+                                  numFolds=5)  # use 3+ folds in practice
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -64,9 +67,15 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, featuresCo
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels)\
         .toDF(schema=['features', 'label'])
 
-    # Genero il modello addestrato attraverso la cross validation
-    cvModel = crossVal.fit(trainingData)
-    # model = dtc.fit(trainingData)
+    if(enableCrossValidator):
+        # Genero il modello addestrato attraverso la cross validation
+        model = crossVal.fit(trainingData)
+
+        # bestPipeline = model.bestModel
+        # bestImpurity = bestPipeline._java_obj.getImpurity()
+
+    else:
+        model = dtc.fit(trainingData)
 
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
@@ -78,11 +87,9 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, featuresCo
         .toDF(schema=['features', 'label'])
 
     # Calcolo le predizioni
-    result = cvModel.transform(testData)
-    # result = model.transform(testData)
+    result = model.transform(testData)
 
     # Converto i risultati nel formato corretto
-    # labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
     predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
 
     return predictionsAndLabels

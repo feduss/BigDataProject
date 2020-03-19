@@ -20,10 +20,10 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 # weightCol        : Weight column name. If this is not set or empty, we treat all instance weights as 1.0
 # aggregationDepth : Suggested depth for treeAggregate (>= 2)
 
-def linearSVC(trainingData, testData, featuresCol="features", labelCol="label", predictionCol="prediction",
-                 maxIter=100, regParam=0.0, tol=1e-6, rawPredictionCol="rawPrediction",
-                 fitIntercept = True, standardization=False, threshold=0.0, weightCol=None,
-                 aggregationDepth=2):
+def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enableCrossValidator = False,
+              featuresCol="features", labelCol="label", predictionCol="prediction", tol=1e-6,
+              rawPredictionCol="rawPrediction", fitIntercept = True, standardization=False, threshold=0.0,
+              weightCol=None):
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     lsvc = LinearSVC(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxIter=maxIter,
@@ -31,18 +31,18 @@ def linearSVC(trainingData, testData, featuresCol="features", labelCol="label", 
                      standardization=standardization, threshold=threshold, weightCol=weightCol,
                      aggregationDepth=aggregationDepth)
 
-    # Creo la mappa dei parametri
-    # TODO RIVEDERE
-    paramGrid = ParamGridBuilder().build()
+    if(enableCrossValidator):
+        # Creo la mappa dei parametri
+        paramGrid = ParamGridBuilder().build()
 
-    # Inizializzo l'evaluator
-    evaluator = BinaryClassificationEvaluator()
+        # Inizializzo l'evaluator
+        evaluator = BinaryClassificationEvaluator()
 
-    # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
-    crossVal = CrossValidator(estimator=lsvc,
-                              estimatorParamMaps=paramGrid,
-                              evaluator=evaluator,
-                              numFolds=5)  # use 3+ folds in practice
+        # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
+        crossVal = CrossValidator(estimator=lsvc,
+                                  estimatorParamMaps=paramGrid,
+                                  evaluator=evaluator,
+                                  numFolds=5)  # use 3+ folds in practice
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -53,9 +53,11 @@ def linearSVC(trainingData, testData, featuresCol="features", labelCol="label", 
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    # Genero il modello addestrato attraverso la cross validation
-    cvModel = crossVal.fit(trainingData)
-    # model = lsvc.fit(trainingData)
+    if(enableCrossValidator):
+        # Genero il modello addestrato attraverso la cross validation
+        model = crossVal.fit(trainingData)
+    else:
+        model = lsvc.fit(trainingData)
 
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
@@ -67,11 +69,9 @@ def linearSVC(trainingData, testData, featuresCol="features", labelCol="label", 
         .toDF(schema=['features', 'label'])
 
     # Calcolo le predizioni
-    result = cvModel.transform(testData)
-    # result = model.transform(testData)
+    result = model.transform(testData)
 
     # Converto i risultati nel formato corretto
-    # labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
     predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
 
     return predictionsAndLabels

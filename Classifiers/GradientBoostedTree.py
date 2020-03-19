@@ -40,7 +40,7 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 #                         'n' (when n is in the range (0, 1.0], use n * number of features.
 #                         When n is in the range (1, number of features), use n features). default = 'auto'
 
-def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, featuresCol='features', labelCol='label',
+def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, enableCrossValidtor = False,featuresCol='features', labelCol='label',
                          predictionCol='prediction', minInstancesPerNode=1, minInfoGain=0.0, maxMemoryInMB=256,
                          cacheNodeIds=False, checkpointInterval=10, lossType='logistic', stepSize=0.1, seed=None,
                          subsamplingRate=1.0, featureSubsetStrategy='all'):
@@ -52,18 +52,18 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, fea
                          lossType=lossType, maxIter=maxIter, stepSize=stepSize, seed=seed,
                          subsamplingRate=subsamplingRate, featureSubsetStrategy=featureSubsetStrategy)
 
-    # Creo la mappa dei parametri
-    # TODO RIVEDERE
-    paramGrid = ParamGridBuilder().build()
+    if(enableCrossValidtor):
+        # Creo la mappa dei parametri
+        paramGrid = ParamGridBuilder().build()
 
-    # Inizializzo l'evaluator
-    evaluator = BinaryClassificationEvaluator()
+        # Inizializzo l'evaluator
+        evaluator = BinaryClassificationEvaluator()
 
-    # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
-    crossVal = CrossValidator(estimator=gbtc,
-                              estimatorParamMaps=paramGrid,
-                              evaluator=evaluator,
-                              numFolds=5)  # use 3+ folds in practice
+        # Creo il sistema di k-fold cross validation, dove estiamtor è il classificatore da valutare e numFolds è il K
+        crossVal = CrossValidator(estimator=gbtc,
+                                  estimatorParamMaps=paramGrid,
+                                  evaluator=evaluator,
+                                  numFolds=5)  # use 3+ folds in practice
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -74,9 +74,11 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, fea
         .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
         .toDF(schema=['features', 'label'])
 
-    # Genero il modello addestrato attraverso la cross validation
-    cvModel = crossVal.fit(trainingData)
-    # model = gbtc.fit(trainingData)
+    if(enableCrossValidtor):
+        # Genero il modello addestrato attraverso la cross validation
+        model = crossVal.fit(trainingData)
+    else:
+        model = gbtc.fit(trainingData)
 
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
@@ -88,11 +90,9 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, fea
         .toDF(schema=['features', 'label'])
 
     # Calcolo le predizioni
-    result = cvModel.transform(testData)
-    # result = model.transform(testData)
+    result = model.transform(testData)
 
     # Converto i risultati nel formato corretto
-    # labelsAndPredictions = result.rdd.map(lambda x: x.label).zip(result.rdd.map(lambda x: x.prediction))
     predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
 
     return predictionsAndLabels
