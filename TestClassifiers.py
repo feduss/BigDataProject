@@ -10,7 +10,7 @@ from Classifiers import \
      GradientBoostedTree as cgbt, \
      LogisticRegression as clr, \
      LinearSVC as clsvc
-import MetricsEvalutation as me
+import MetricsEvaluation as me
 
 
 def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):

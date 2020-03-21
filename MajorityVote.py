@@ -3,7 +3,7 @@ import csv
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.shell import sc
 
-import MetricsEvalutation as ma
+import MetricsEvaluation as ma
 import ResultAnalysis as ra
 import SetsCreation
 from Classifiers import DecisionTree, RandomForest, GradientBoostedTree, LogisticRegression, LinearSVC
