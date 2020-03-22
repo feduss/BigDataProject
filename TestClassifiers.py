@@ -42,7 +42,7 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
     maxDepth2 = [3, 5]
 
     # Solo Logistic Regression
-    elasticNetParam = [0.8, 1.0, 1.2]
+    elasticNetParam = [0.6, 0.8, 1.0]
 
     # Contatori
     iter_count = 0
@@ -289,7 +289,7 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
         print('--------------------------------------------------\n')
 
         csvWriter.writerow(['#############################'])
-
+        
         j = -1
         k = -1
         l = -1
@@ -299,7 +299,7 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
         # Logistic Regression ML.classification
         # maxIter (numIterations) = [50, 100]
         # regParam = [0.1, 0.3, 0.5]
-        # elasticNetParam = [0.8, 1.0, 1.2]
+        # elasticNetParam = [0.6, 0.8, 1.0]
         # aggregationDepth = [2, 3, 4]
 
         max_count = len(numIterations) * len(regParam) * len(elasticNetParam) * len(aggregationDepth)

@@ -43,22 +43,17 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 #                             of classes for multinomial regression
 
 def logisticRegression(trainingData, testData, maxIter, regParam, elasticNetParam, aggregationDepth,
-                       enableCrossValidator = False,featuresCol="features", labelCol="label",
-                       predictionCol="prediction", tol=1e-6, fitIntercept=True, threshold=0.5, thresholds=None,
+                       enableCrossValidator=False, featuresCol="features", labelCol="label",
+                       predictionCol="prediction", tol=1e-6, fitIntercept=True, threshold=0.5,
                        probabilityCol="probability", rawPredictionCol="rawPrediction", standardization=False,
-                       weightCol=None, family="binomial", lowerBoundsOnCoefficients=None,
-                       upperBoundsOnCoefficients=None, lowerBoundsOnIntercepts=None, upperBoundsOnIntercepts=None):
+                       family="binomial"):
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
-    lrc = LogisticRegression(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxIter=maxIter,
-                             regParam=regParam, elasticNetParam=elasticNetParam, tol=tol, fitIntercept=fitIntercept,
-                             threshold=threshold, thresholds=thresholds, probabilityCol=probabilityCol,
-                             rawPredictionCol=rawPredictionCol, standardization=standardization, weightCol=weightCol,
-                             aggregationDepth=aggregationDepth, family=family,
-                             lowerBoundsOnCoefficients=lowerBoundsOnCoefficients,
-                             upperBoundsOnCoefficients=upperBoundsOnCoefficients,
-                             lowerBoundsOnIntercepts=lowerBoundsOnIntercepts,
-                             upperBoundsOnIntercepts=upperBoundsOnIntercepts)
+    lrc = LogisticRegression(maxIter=maxIter, regParam=regParam, elasticNetParam=elasticNetParam,
+                             aggregationDepth=aggregationDepth, featuresCol=featuresCol, labelCol=labelCol,
+                             predictionCol=predictionCol, tol=tol, fitIntercept=fitIntercept,
+                             threshold=threshold, probabilityCol=probabilityCol,
+                             rawPredictionCol=rawPredictionCol, standardization=standardization, family=family)
 
     # In caso di cross validation
     if enableCrossValidator:

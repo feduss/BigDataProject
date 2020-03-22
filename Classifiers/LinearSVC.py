@@ -20,16 +20,14 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 # weightCol        : Weight column name. If this is not set or empty, we treat all instance weights as 1.0
 # aggregationDepth : Suggested depth for treeAggregate (>= 2)
 
-def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enableCrossValidator = False,
+def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enableCrossValidator=False,
               featuresCol="features", labelCol="label", predictionCol="prediction", tol=1e-6,
-              rawPredictionCol="rawPrediction", fitIntercept = True, standardization=False, threshold=0.0,
-              weightCol=None):
+              rawPredictionCol="rawPrediction", fitIntercept = True, standardization=False, threshold=0.0):
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     lsvc = LinearSVC(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxIter=maxIter,
                      regParam=regParam, tol=tol, rawPredictionCol=rawPredictionCol, fitIntercept=fitIntercept,
-                     standardization=standardization, threshold=threshold, weightCol=weightCol,
-                     aggregationDepth=aggregationDepth)
+                     standardization=standardization, threshold=threshold, aggregationDepth=aggregationDepth)
 
     # In caso di cross validation
     if enableCrossValidator:

@@ -6,8 +6,9 @@ from pyspark.shell import sc, spark
 
 
 def setsCreation(multiplier, dataset):
+
     if dataset < 3:
-        source_file = "creditcard_undersampled" + str(dataset % 2)
+        source_file = "creditcard_undersampled" + str(dataset)
     else:
         source_file = "creditcard_normalized" + str(dataset % 2)
 

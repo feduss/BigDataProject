@@ -53,15 +53,9 @@ def getBestResults(source_file, num_classifiers):
 
 
 def getLabelsAndPredictions(best_result_lines, destination_file):
-    datas = SetsCreation.setsCreation(1, 2)
+    datas = SetsCreation.setsCreation(1, 1)
 
     (trainingData, testData) = datas[0]
-    c_trainingData = trainingData.map(lambda x: LabeledPoint(x[30], x[:30]))
-    c_testData = testData.map(lambda x: LabeledPoint(x[30], x[:30]))
-
-    x = c_trainingData.getNumPartitions()
-    y = c_testData.getNumPartitions()
-
     labelsAndPredictions = {}
 
     with open("CSV_Results/" + destination_file + ".csv", "w") as ensemble_metric:
@@ -73,35 +67,45 @@ def getLabelsAndPredictions(best_result_lines, destination_file):
             row = best_result_lines[i]
             parameters = row[2]
             if i is 0:
-                labelsAndPredictions.update({row[0]: DecisionTree.decisionTree(c_trainingData, c_testData,
-                                                                               parameters[0], int(parameters[1]),
-                                                                               int(parameters[2], True)
-                                                                               ).collect()})
+                labelsAndPredictions.update({row[0]: DecisionTree.decisionTree(trainingData,
+                                                                               testData,
+                                                                               parameters[0],
+                                                                               int(parameters[1]),
+                                                                               int(parameters[2]), True).collect()})
                 print("1/5")
             elif i is 1:
-                labelsAndPredictions.update({row[0]: RandomForest.randomForest(c_trainingData, c_testData,
-                                                                               parameters[0], int(parameters[1]),
-                                                                               int(parameters[2]), int(parameters[3],
-                                                                               True)
-                                                                               ).collect()})
+                labelsAndPredictions.update({row[0]: RandomForest.randomForest(trainingData,
+                                                                               testData,
+                                                                               parameters[0],
+                                                                               int(parameters[1]),
+                                                                               int(parameters[2]),
+                                                                               int(parameters[3]),
+                                                                               True).collect()})
                 print("2/5")
             elif i is 2:
-                labelsAndPredictions.update({row[0]: GradientBoostedTree.gradientBoostedTrees(c_trainingData, c_testData,
-                                                                                              parameters[0], int(parameters[3]),
-                                                                                              int(parameters[1]), int(parameters[2]),
+                labelsAndPredictions.update({row[0]: GradientBoostedTree.gradientBoostedTrees(trainingData,
+                                                                                              testData,
+                                                                                              int(parameters[2]),
+                                                                                              int(parameters[0]),
+                                                                                              int(parameters[1]),
                                                                                               True).collect()})
                 print("3/5")
             elif i is 3:
-                labelsAndPredictions.update({row[0]: LogisticRegression.logisticRegression(trainingData, testData,
-                                                                                           int(parameters[0]), float(parameters[1]),
-                                                                                           float(parameters[2]), int(parameters[3]),
+                labelsAndPredictions.update({row[0]: LogisticRegression.logisticRegression(trainingData,
+                                                                                           testData,
+                                                                                           int(parameters[0]),
+                                                                                           float(parameters[1]),
+                                                                                           float(parameters[2]),
+                                                                                           int(parameters[3]),
                                                                                            True).collect()})
                 print("4/5")
             elif i is 4:
-                labelsAndPredictions.update({row[0]: LinearSVC.linearSVC(trainingData, testData,
-                                                                         int(parameters[0]), float(parameters[1]),
-                                                                         int(parameters[2]), True
-                                                                         ).collect()})
+                labelsAndPredictions.update({row[0]: LinearSVC.linearSVC(trainingData,
+                                                                         testData,
+                                                                         int(parameters[0]),
+                                                                         float(parameters[1]),
+                                                                         int(parameters[2]),
+                                                                         True).collect()})
                 print("5/5")
 
         for key in list(labelsAndPredictions.keys()):
