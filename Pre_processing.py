@@ -1,18 +1,11 @@
+import csv
 import time
 
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import sklearn.preprocessing as pp
-import csv
-
-from pyspark import mllib, Row
-
 # dataset = sns.load_dataset("credicard.csv")
 from pyspark.mllib.feature import StandardScaler
-from pyspark.mllib.linalg import Vectors
-from pyspark.shell import spark, sc
-from pyspark.sql import functions as F
+from pyspark.shell import spark
 
 dataset = pd.read_csv('CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
 
