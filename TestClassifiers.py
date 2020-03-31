@@ -1,3 +1,4 @@
+# coding=utf-8
 import csv
 import sys
 import time
@@ -10,6 +11,7 @@ from Classifiers import \
      GradientBoostedTree as cgbt, \
      LogisticRegression as clr, \
      LinearSVC as clsvc
+
 import MetricsEvaluation as me
 
 

@@ -1,3 +1,4 @@
+# coding=utf-8
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 from pyspark.ml.linalg import Vectors
 from pyspark.shell import sc

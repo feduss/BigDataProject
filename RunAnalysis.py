@@ -1,32 +1,42 @@
-import time
-import TestClassifiers as tc
-import ResultAnalysis as ra
+# coding=utf-8
+
+from pyspark.shell import sc
+
 import MajorityVote as mv
+import time
 
-if __name__ == "__main__":
-    verbose = False
-    multiplier = 5
-    classifiers = 5
+def runAnalysis():
+    used_dataset = 3
 
-    metric_file = "classifiers_metrics"
     analysis_file = "results"
     ensemble_file = "ensembles_metrics"
-    dataset_code = "_u1"
+    dataset_code = "_u3"
 
-    mainTime = time.time()
-    tc.mainTestClassifier(destination_file=metric_file + dataset_code,
-                          verbose=verbose, multiplier=multiplier, used_dataset=1)
-    print("Test eseguiti in " + str(time.time() - mainTime) + " secondi")
+    num_instaces = sc._jsc.sc().getExecutorMemoryStatus().size()
+    print("Instances online: " + str(num_instaces))
 
-    ra.ResultAnalysis(source_file=metric_file + dataset_code,
-                      destination_file=analysis_file + dataset_code,
-                      classifiers=classifiers)
-    print("Analisi ultimate. File Results pronto")
+    time.sleep(15)
 
+    start = time.time()
+
+    print("Esecuzione getBestResults")
     bestResults = mv.getBestResults(source_file=analysis_file + dataset_code,
                                     num_classifiers=5)
+    print("BestResults ottenuti")
 
+    print("Esecuzione getLabelsAndPredictions")
     predALab = mv.getLabelsAndPredictions(best_result_lines=bestResults,
-                                          destination_file=ensemble_file + dataset_code)
+                                          destination_file=ensemble_file + dataset_code,
+                                          used_dataset=used_dataset)
+    print("LabelsAndPredictions ottenute")
 
+    print("Esecuzione ensembler")
     mv.ensembler(predALab=predALab, destination_file=ensemble_file + dataset_code)
+    print("Esembler eseguito")
+
+    end = time.time() - start
+
+    print("Exec time with " + str(num_instaces) + ": " + str(end))
+
+if __name__ == '__main__':
+    runAnalysis()

@@ -1,3 +1,4 @@
+# coding=utf-8
 import csv
 
 from pyspark.mllib.regression import LabeledPoint
@@ -52,11 +53,14 @@ def getBestResults(source_file, num_classifiers):
         return best_result_lines
 
 
-def getLabelsAndPredictions(best_result_lines, destination_file):
-    datas = SetsCreation.setsCreation(1, 1)
+def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
+    datas = SetsCreation.setsCreation(1, used_dataset)
 
     (trainingData, testData) = datas[0]
     labelsAndPredictions = {}
+
+    x = trainingData.collect()
+    y = testData.collect()
 
     with open("CSV_Results/" + destination_file + ".csv", "w") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)

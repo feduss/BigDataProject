@@ -1,3 +1,4 @@
+# coding=utf-8
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from pyspark.shell import sc

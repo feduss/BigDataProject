@@ -1,3 +1,4 @@
+# coding=utf-8
 from pyspark.mllib.evaluation import BinaryClassificationMetrics as metrics
 
 
