@@ -3,19 +3,19 @@
 
 Comandi richiesti per eseguire il codice:
 ```console
-user@user:~$ sudo pip install pyspark
-user@user:~$ sudo pip install pandas
-user@user:~$ sudo pip install sklearn
-user@user:~$ sudo pip install statistics
+user@user:~$ sudo pip3 install pyspark
+user@user:~$ sudo pip3 install pandas
+user@user:~$ sudo pip3 install sklearn
+user@user:~$ sudo pip3 install statistics
 ```
 Dalla root del progetto:
 
 Per avviare il testing e l'analisi:
 ```console
-user@user:~$ python RunTesting.py
+user@user:~$ python3 RunTesting.py
 ```
 
 Per avviare solo il testing:
 ```console
-user@user:~$ python RunAnalysis.py
+user@user:~$ python3 RunAnalysis.py
 
