@@ -2,6 +2,7 @@
 import csv
 import sys
 import time
+from pathlib import Path
 
 import SetsCreation
 from pyspark.mllib.regression import LabeledPoint
@@ -54,7 +55,7 @@ def mainTestClassifier(destination_file, verbose, multiplier, used_dataset):
     l = -1
     m = -1
 
-    with open('CSV_Results/' + destination_file + '.csv', 'w') as metric_file:
+    with open(str(Path(__file__).parent) + '/CSV_Results/' + destination_file + '.csv', 'w') as metric_file:
         csvWriter = csv.writer(metric_file)
 
         csvWriter.writerow(['Multiplier: ' + str(multiplier)])

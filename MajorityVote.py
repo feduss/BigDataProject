@@ -1,5 +1,6 @@
 # coding=utf-8
 import csv
+from pathlib import Path
 
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.shell import sc
@@ -11,7 +12,7 @@ from Classifiers import DecisionTree, RandomForest, GradientBoostedTree, Logisti
 
 
 def getBestResults(source_file, num_classifiers):
-    with open('CSV_Results/' + source_file + '.csv', 'r') as resultsReader:
+    with open(str(Path(__file__).parent) + '/CSV_Results/' + source_file + '.csv', 'r') as resultsReader:
         best_result_lines = []
 
         # Ottengo i parametri del miglior risultato dei test di ogni classificatore
@@ -62,7 +63,7 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
     x = trainingData.collect()
     y = testData.collect()
 
-    with open("CSV_Results/" + destination_file + ".csv", "w") as ensemble_metric:
+    with open(str(Path(__file__).parent) + "/CSV_Results/" + destination_file + ".csv", "w") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)
 
         csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])
@@ -233,7 +234,7 @@ def ensembler(predALab, destination_file):
 
     result.update({list(ensembleQuintuple.keys())[0]: ma.metricsEvalutation(sc.parallelize(list(ensembleQuintuple.values())[0]), len(list(ensembleQuintuple.values())[0]), False)})
 
-    with open("CSV_Results/" + destination_file + ".csv", "a") as ensemble_metric:
+    with open(str(Path(__file__).parent) + "/CSV_Results/" + destination_file + ".csv", "a") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)
 
         # csvWriter.writerow(['EnsembleType', 'Sensitivity', 'Fallout', 'Specificity', 'Miss_Rate', 'Test_Err', 'AUC'])

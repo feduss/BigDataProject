@@ -1,6 +1,7 @@
 # coding=utf-8
 import csv
 import time
+from pathlib import Path
 
 import pandas as pd
 import sklearn.preprocessing as pp
@@ -8,7 +9,7 @@ import sklearn.preprocessing as pp
 from pyspark.mllib.feature import StandardScaler
 from pyspark.shell import spark
 
-dataset = pd.read_csv('CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
+dataset = pd.read_csv(str(Path(__file__).parent) + '/CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
 
 '''
 # Calcolo il numero di frodi e non frodi presenti
@@ -53,11 +54,11 @@ for name_class in dataset.columns:
             print("Valore max: " + str(max_value) +", valore min: " + str(min_value))
 
 # Apro il ds iniziale
-with open("CSV_Sources/creditcard.csv") as original_dataset:
+with open(str(Path(__file__).parent) + "/CSV_Sources/creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    #with open('CSV_Sources/creditcard_undersampled1.csv', 'w') as new_dataset:
-    with open('CSV_Sources/creditcard_normalized1.csv', 'w') as new_dataset:
+    #with open(str(Path(__file__).parent) + '/CSV_Sources/creditcard_undersampled1.csv', 'w') as new_dataset:
+    with open(str(Path(__file__).parent) + '/CSV_Sources/creditcard_normalized1.csv', 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe
@@ -110,11 +111,11 @@ norm_sample = norm_sample.join(labelsDF, norm_sample.Time == labelsDF.Time, how=
 # norm_sample.show()
 
 # Apro il ds iniziale
-with open("CSV_Sources/creditcard.csv") as original_dataset:
+with open(str(Path(__file__).parent) + "/CSV_Sources/creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    #with open('CSV_Sources/creditcard_undersampled2.csv', 'w') as new_dataset:
-    with open('CSV_Sources/creditcard_normalized2.csv', 'w') as new_dataset:
+    #with open(str(Path(__file__).parent) + '/CSV_Sources/creditcard_undersampled2.csv', 'w') as new_dataset:
+    with open(str(Path(__file__).parent) + '/CSV_Sources/creditcard_normalized2.csv', 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe

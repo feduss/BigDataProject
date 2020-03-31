@@ -1,4 +1,5 @@
 # coding=utf-8
+from pathlib import Path
 
 from pyspark.shell import sc
 
@@ -6,6 +7,7 @@ import MajorityVote as mv
 import time
 
 def runAnalysis():
+
     used_dataset = 3
 
     analysis_file = "results"
@@ -14,8 +16,6 @@ def runAnalysis():
 
     num_instaces = sc._jsc.sc().getExecutorMemoryStatus().size()
     print("Instances online: " + str(num_instaces))
-
-    time.sleep(15)
 
     start = time.time()
 

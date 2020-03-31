@@ -1,5 +1,6 @@
 # coding=utf-8
 import math
+from pathlib import Path
 
 import pandas as pd
 from pyspark.shell import sc, spark
@@ -16,7 +17,7 @@ def setsCreation(multiplier, dataset):
     datas = []
 
     # Leggo il ds con pandas
-    p_df = pd.read_csv("CSV_Sources/" + source_file + ".csv")
+    p_df = pd.read_csv(str(Path(__file__).parent) + "/CSV_Sources/" + source_file + ".csv")
 
     # Converto il ds pandas in un ds spark, dando un numero di partition pari alla radice quadrata degli elementi
     s_df = spark.createDataFrame(p_df).repartition(int(math.sqrt(len(p_df))))
