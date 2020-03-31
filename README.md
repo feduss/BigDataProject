@@ -3,10 +3,12 @@
 
 Impostare python3 su pyspark:
 ```console
-user@user:~$ sudo nano /spark/bin/pyspark
+user@user:~$ sudo nano spark/conf/spark-env.sh
 ```
-Ed impostare PYSPARK_PYTHON=python3
-
+Ed aggiungere in coda:
+```bash
+export PYSPARK_PYTHON=python3
+```
 
 Comandi richiesti per eseguire il codice:
 ```console
