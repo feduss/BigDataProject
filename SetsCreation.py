@@ -1,10 +1,8 @@
 # coding=utf-8
 import math
 from pathlib import Path
-
 import pandas as pd
-from pyspark.shell import sc, spark
-# il decisiontree vuole una rdd di labeledpoint
+from pyspark.shell import spark
 
 
 def setsCreation(multiplier, dataset):

@@ -1,11 +1,7 @@
 # coding=utf-8
 import time
-
-from pyspark.shell import sc
-
 import TestClassifiers as tc
 import ResultAnalysis as resa
-import MajorityVote as mv
 import RunAnalysis as ra
 
 
@@ -26,8 +22,8 @@ if __name__ == "__main__":
     print("Test eseguiti in " + str(time.time() - mainTime) + " secondi")
 
     resa.ResultAnalysis(source_file=metric_file + dataset_code,
-                      destination_file=analysis_file + dataset_code,
-                      classifiers=classifiers)
+                        destination_file=analysis_file + dataset_code,
+                        classifiers=classifiers)
     print("Analisi ultimate. File Results pronto")
 
     ra.runAnalysis()

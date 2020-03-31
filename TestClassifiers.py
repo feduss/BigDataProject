@@ -3,16 +3,13 @@ import csv
 import sys
 import time
 from pathlib import Path
-
 import SetsCreation
-from pyspark.mllib.regression import LabeledPoint
 from Classifiers import \
      DecisionTree as cdt, \
      RandomForest as crf, \
      GradientBoostedTree as cgbt, \
      LogisticRegression as clr, \
      LinearSVC as clsvc
-
 import MetricsEvaluation as me
 
 

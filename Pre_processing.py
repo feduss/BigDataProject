@@ -2,13 +2,12 @@
 import csv
 import time
 from pathlib import Path
-
 import pandas as pd
 import sklearn.preprocessing as pp
-# dataset = sns.load_dataset("credicard.csv")
 from pyspark.mllib.feature import StandardScaler
 from pyspark.shell import spark
 
+# dataset = sns.load_dataset("credicard.csv")
 dataset = pd.read_csv(str(Path(__file__).parent) + '/CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
 
 '''

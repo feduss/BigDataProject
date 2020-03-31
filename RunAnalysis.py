@@ -1,10 +1,8 @@
 # coding=utf-8
-from pathlib import Path
-
 from pyspark.shell import sc
-
 import MajorityVote as mv
 import time
+
 
 def runAnalysis():
 
@@ -37,6 +35,7 @@ def runAnalysis():
     end = time.time() - start
 
     print("Exec time with " + str(num_instaces) + ": " + str(end))
+
 
 if __name__ == '__main__':
     runAnalysis()
