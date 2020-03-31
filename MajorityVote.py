@@ -1,12 +1,8 @@
 # coding=utf-8
 import csv
 from pathlib import Path
-
-from pyspark.mllib.regression import LabeledPoint
 from pyspark.shell import sc
-
 import MetricsEvaluation as ma
-import ResultAnalysis as ra
 import SetsCreation
 from Classifiers import DecisionTree, RandomForest, GradientBoostedTree, LogisticRegression, LinearSVC
 
