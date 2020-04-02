@@ -6,11 +6,14 @@ from pyspark.shell import spark
 
 
 def setsCreation(multiplier, dataset):
-
-    if dataset < 3:
+    if dataset == 1:
         source_file = "creditcard_undersampled" + str(dataset)
+    elif dataset == 2:
+        source_file = "creditcard_undersampled" + str(dataset)
+    elif dataset == 3:
+        source_file = "creditcard_normalized" + str(dataset - 2)
     else:
-        source_file = "creditcard_normalized" + str(dataset % 2)
+        source_file = "creditcard_normalized" + str(dataset - 2)
 
     datas = []
 

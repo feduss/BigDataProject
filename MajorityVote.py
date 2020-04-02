@@ -56,9 +56,6 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
     (trainingData, testData) = datas[0]
     labelsAndPredictions = {}
 
-    x = trainingData.collect()
-    y = testData.collect()
-
     with open(str(Path(__file__).parent) + "/CSV_Results/" + destination_file + ".csv", "w") as ensemble_metric:
         csvWriter = csv.writer(ensemble_metric)
 
@@ -134,6 +131,7 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
 def ensembler(predALab, destination_file):
     ensemblePair = {}
 
+    print("Esecuzione ensemble pairs")
     ensemblePair.update({'DT RF': majorityVotePairs(predALab['Decision_Tree'],
                                                     predALab['Random_Forest'])})
     ensemblePair.update({'DT GBT': majorityVotePairs(predALab['Decision_Tree'],
@@ -154,9 +152,11 @@ def ensembler(predALab, destination_file):
                                                        predALab['Linear_SVC'])})
     ensemblePair.update({'LR LSVC': majorityVotePairs(predALab['Logistic_Regression'],
                                                       predALab['Linear_SVC'])})
+    print("Ensemble pairs eseguiti")
 
     ensembleTriple = {}
 
+    print("Esecuzione ensemble triple")
     ensembleTriple.update({'DT RF GBT': majorityVoteTriple(predALab['Decision_Tree'],
                                                            predALab['Random_Forest'],
                                                            predALab['Gradient_Boosted_Tree'])})
@@ -187,9 +187,11 @@ def ensembler(predALab, destination_file):
     ensembleTriple.update({'GBT LR LSVC': majorityVoteTriple(predALab['Gradient_Boosted_Tree'],
                                                              predALab['Logistic_Regression'],
                                                              predALab['Linear_SVC'])})
+    print("Ensemble triple eseguiti")
 
     ensembleQuadruple = {}
 
+    print("Esecuzione ensemble quadruple")
     ensembleQuadruple.update({'DT RF GBT LR': majorityVoteQuadruple(predALab['Decision_Tree'],
                                                                     predALab['Random_Forest'],
                                                                     predALab['Gradient_Boosted_Tree'],
@@ -210,14 +212,18 @@ def ensembler(predALab, destination_file):
                                                                       predALab['Gradient_Boosted_Tree'],
                                                                       predALab['Logistic_Regression'],
                                                                       predALab['Linear_SVC'])})
+    print("Ensemble quadruple eseguiti")
 
     ensembleQuintuple = {}
 
+    print("Esecuzione ensemble quintuple")
     ensembleQuintuple.update({'DT RF GBT LR LSVC': majorityVoteQuintuple(predALab['Decision_Tree'],
                                                                          predALab['Random_Forest'],
                                                                          predALab['Gradient_Boosted_Tree'],
                                                                          predALab['Logistic_Regression'],
                                                                          predALab['Linear_SVC'])})
+    print("Ensemble quintuple eseguito")
+
     result = {}
     for i in range(len(list(ensemblePair.keys()))):
         result.update({list(ensemblePair.keys())[i]: ma.metricsEvalutation(sc.parallelize(list(ensemblePair.values())[i]), len(list(ensemblePair.values())[i]), False)})
