@@ -118,7 +118,7 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
                 classifier_name = "GBT"
             elif key == "Logistic_Regression":
                 classifier_name = "LR"
-            elif key == "Linea_SVC":
+            elif key == "Linear_SVC":
                 classifier_name = "LSVC"
 
             csvWriter.writerow([classifier_name, str(result.sensitivity), str(result.fallout),
