@@ -31,7 +31,7 @@ def runAnalysis(used_dataset, dataset_code):
 
     end = time.time() - start
 
-    print("Exec time with " + str(num_instaces) + ": " + str(end))
+    print("Exec time with " + str(num_instaces) + " instance/s: " + str(end) + " seconds")
 
 
 if __name__ == '__main__':
