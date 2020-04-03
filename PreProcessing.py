@@ -2,46 +2,50 @@
 import csv
 import time
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import sklearn.preprocessing as pp
 from pyspark.mllib.feature import StandardScaler
 from pyspark.shell import spark
 
+doUndersampled = False # False = usa il ds completo
+
 # dataset = sns.load_dataset("credicard.csv")
 dataset = pd.read_csv(str(Path(__file__).parent) + '/CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
 
-'''
-# Calcolo il numero di frodi e non frodi presenti
-no_frauds = len(dataset[dataset['Class'] == 0])
-frauds = len(dataset[dataset['Class'] == 1])
 
-# Calcolo gli indici dei valori indicati come frodi e non frodi
-non_fraud_indices = dataset[dataset.Class == 0].index
-fraud_indices = dataset[dataset.Class == 1].index
+if(doUndersampled):
+    # Calcolo il numero di frodi e non frodi presenti
+    no_frauds = len(dataset[dataset['Class'] == 0])
+    frauds = len(dataset[dataset['Class'] == 1])
 
+    # Calcolo gli indici dei valori indicati come frodi e non frodi
+    non_fraud_indices = dataset[dataset.Class == 0].index
+    fraud_indices = dataset[dataset.Class == 1].index
 
-# Imposto il seed della funzione random per rendere i numeri generati sempre gli stessi
-np.random.seed(9)
-# Prendo indici di non frodi randomicamente, ma ne scelgo lo stesso numero di quelli delle frodi, per bilanciamento
-random_indices = np.random.choice(non_fraud_indices, frauds, False)
+    # Imposto il seed della funzione random per rendere i numeri generati sempre gli stessi
+    np.random.seed(9)
+    # Prendo indici di non frodi randomicamente, ma ne scelgo lo stesso numero di quelli delle frodi, per bilanciamento
+    random_indices = np.random.choice(non_fraud_indices, frauds, False)
 
-# Concateno gli indici delle frodi con i nuovi indici delle non frodi
-under_sample_indices = np.concatenate([fraud_indices, random_indices])
+    # Concateno gli indici delle frodi con i nuovi indici delle non frodi
+    under_sample_indices = np.concatenate([fraud_indices, random_indices])
 
-# Ottengo il nuovo dataset undersampled
-under_sample = dataset.loc[under_sample_indices]
-'''
+    # Ottengo il nuovo dataset undersampled
+    under_sample = dataset.loc[under_sample_indices]
+
+    norm_sample = under_sample
+else:
+    norm_sample = dataset
+
 # Metodo 1
 # Normalizzo i dati delle colonne delle transazioni (V1, V2, ...)
 
 start_time = time.time()
-#under_sample = dataset.loc[under_sample_indices].sort_values('Time')
-under_sample = dataset.sort_values('Time')
-norm_sample = under_sample
 for name_class in dataset.columns:
     if str(name_class).startswith("V"):
         print ("Colonna:" + name_class, end="\r")
-        x = under_sample[[name_class]].values.astype(float)
+        x = norm_sample[[name_class]].values.astype(float)
         min_max_scaler = pp.MinMaxScaler()
         x_scaled = min_max_scaler.fit_transform(x)
         norm_sample[name_class] = x_scaled
@@ -56,8 +60,10 @@ for name_class in dataset.columns:
 with open(str(Path(__file__).parent) + "/CSV_Sources/creditcard.csv") as original_dataset:
     csvReader = list(csv.reader(original_dataset))
     # Creo il nuovo ds
-    #with open(str(Path(__file__).parent) + '/CSV_Sources/creditcard_undersampled1.csv', 'w') as new_dataset:
-    with open(str(Path(__file__).parent) + '/CSV_Sources/creditcard_normalized1.csv', 'w') as new_dataset:
+    file = "error"
+    if(doUndersampled): file = "creditcard_undersampled1.csv"
+    else: file = "creditcard_normalized1.csv"
+    with open(str(Path(__file__).parent) + '/CSV_Sources/' + file, 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
         csvWriter.writerow(csvReader[0]) # scrivo l'header
         # Scrivo le nuove righe
@@ -66,7 +72,7 @@ with open(str(Path(__file__).parent) + "/CSV_Sources/creditcard.csv") as origina
 end_time = time.time() - start_time
 print ("Tempo metodo 1: " + str(end_time) + "s")
 
-
+'''
 #Metodo 2
 start_time = time.time()
 preprocessing_status = True
@@ -123,3 +129,4 @@ with open(str(Path(__file__).parent) + "/CSV_Sources/creditcard.csv") as origina
 
 end_time = time.time() - start_time
 print ("Tempo metodo 2: " + str(end_time) + "s")
+'''
