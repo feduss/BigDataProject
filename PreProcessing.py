@@ -8,7 +8,7 @@ import sklearn.preprocessing as pp
 from pyspark.mllib.feature import StandardScaler
 from pyspark.shell import spark
 
-doUndersampled = False # False = usa il ds completo
+doUndersampled = True # False = usa il ds completo
 
 # dataset = sns.load_dataset("credicard.csv")
 dataset = pd.read_csv(str(Path(__file__).parent) + '/CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
@@ -42,6 +42,7 @@ else:
 # Normalizzo i dati delle colonne delle transazioni (V1, V2, ...)
 
 start_time = time.time()
+norm_sample.insert(31, "Index", range(1, len(norm_sample['Time']) + 1))
 for name_class in dataset.columns:
     if str(name_class).startswith("V"):
         print ("Colonna:" + name_class, end="\r")
@@ -65,7 +66,7 @@ with open(str(Path(__file__).parent) + "/CSV_Sources/creditcard.csv") as origina
     else: file = "creditcard_normalized1.csv"
     with open(str(Path(__file__).parent) + '/CSV_Sources/' + file, 'w') as new_dataset:
         csvWriter = csv.writer(new_dataset)
-        csvWriter.writerow(csvReader[0]) # scrivo l'header
+        csvWriter.writerow(csvReader[0] + ['Index']) # scrivo l'header
         # Scrivo le nuove righe
         new_rows = norm_sample.values.tolist()
         csvWriter.writerows(new_rows)

@@ -62,6 +62,7 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
     testFeatures = testData.map(lambda x: x[:30])
+    testIndices = testData.map(lambda x: x[31])
 
     # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
     testData = testFeatures \
@@ -70,6 +71,11 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
 
     # Calcolo le predizioni
     result = model.transform(testData)
+
+    indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(
+        schema=['index', 'features'])
+
+    result = result.join(indicesAndFeatures, 'features').orderBy('index')
 
     # Converto i risultati nel formato corretto
     predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
