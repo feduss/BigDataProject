@@ -49,13 +49,14 @@ def metricsEvalutation(predictionsAndLabels, elementNumber, verbose):
     missRate = (0 if (FN + TP) == 0 else FN / (FN + TP))
 
     # Calcolo la curva di ROC
-    AUC = metrics(predictionsAndLabels).areaUnderROC
+    PaL = predictionsAndLabels.map(lambda x: (x[0], x[1]))
+    AUC = metrics(PaL).areaUnderROC
 
     results = Results(sensitivity, fallout, specificity, missRate, AUC, testErr)
 
     # Stampe varie
     if verbose:
-        print('Record del test set = ' + str(predictionsAndLabels.count()))
+        print('Record del test set = ' + str(PaL.count()))
         print('Totali = ' + str(TP + TN + FP + FN) + '\n')
 
         print('True positives = ' + str(TP))
