@@ -37,7 +37,7 @@ def runAnalysis(used_dataset, dataset_code):
 if __name__ == '__main__':
     dataset = ""
 
-    sys.argv.append("undersampled")
+    #sys.argv.append("undersampled")
 
     if len(sys.argv) <= 1:
         print("--> Specificare il tipo di dataset da utilizzare.\n"

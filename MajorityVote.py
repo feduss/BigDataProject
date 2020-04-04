@@ -131,16 +131,20 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
 def ensembler(predALab, destination_file):
     ensemblePair = {}
 
-    dt = predALab['Decision_Tree'].collect()
-    print("\nDT: \n1) " + dt[0] + "\n2) " + dt[1] + "\n3) " + dt[2])
-    rf = predALab['Random_Forest'].collect()
-    print("\nRF: \n1) " + rf[0] + "\n2) " + rf[1] + "\n3) " + rf[2])
-    gbt = predALab['Gradient_Boosted_Tree'].collect()
-    print("\nGBT: \n1) " + gbt[0] + "\n2) " + gbt[1] + "\n3) " + gbt[2])
-    lr = predALab['Logistic_Regression'].collect()
-    print("\nLR: \n1) " + lr[0] + "\n2) " + lr[1] + "\n3) " + lr[2])
-    lsvc = predALab['Linear_SVC'].collect()
-    print("\nLSVC: \n1) " + lsvc[0] + "\n2) " + lsvc[1] + "\n3) " + lsvc[2])
+    dt = predALab['Decision_Tree']
+    print("\nDT ("+str(len(dt)) +"): \n1) " +  str(dt[0]) + "\n2) " +  str(dt[1]) + "\n3) " +  str(dt[2]))
+
+    rf = predALab['Random_Forest']
+    print("\nRF ("+str(len(rf)) +"): \n1) " +  str(rf[0]) + "\n2) " +  str(rf[1]) + "\n3) " +  str(rf[2]))
+
+    gbt = predALab['Gradient_Boosted_Tree']
+    print("\nGBT ("+str(len(gbt)) +"): \n1) " +  str(gbt[0]) + "\n2) " +  str(gbt[1]) + "\n3) " +  str(gbt[2]))
+
+    lr = predALab['Logistic_Regression']
+    print("\nLR ("+str(len(lr)) +"): \n1) " +  str(lr[0]) + "\n2) " +  str(lr[1]) + "\n3) " +  str(lr[2]))
+
+    lsvc = predALab['Linear_SVC']
+    print("\nLSVC ("+str(len(lsvc)) +"): \n1) " +  str(lsvc[0]) + "\n2) " +  str(lsvc[1]) + "\n3) " +  str(lsvc[2]))
 
     print("Esecuzione ensemble pairs")
     ensemblePair.update({'DT RF': majorityVotePairs(predALab['Decision_Tree'],
