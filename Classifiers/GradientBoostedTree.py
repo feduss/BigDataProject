@@ -47,12 +47,16 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
                          lossType='logistic', stepSize=0.1, seed=None, subsamplingRate=1.0,
                          featureSubsetStrategy='all'):
 
+    print("Inizio classificazione con GBTClassifier")
+
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     gbtc = GBTClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxDepth=maxDepth,
                          maxBins=maxBins, minInstancesPerNode=minInstancesPerNode, minInfoGain=minInfoGain,
                          maxMemoryInMB=maxMemoryInMB, cacheNodeIds=cacheNodeIds, checkpointInterval=checkpointInterval,
                          lossType=lossType, maxIter=maxIter, stepSize=stepSize, seed=seed,
                          subsamplingRate=subsamplingRate, featureSubsetStrategy=featureSubsetStrategy)
+
+    print("    -modello creato")
 
     # In caso di cross validation
     if enableCrossValidtor:
@@ -67,6 +71,8 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
                                   estimatorParamMaps=paramGrid,
                                   evaluator=evaluator,
                                   numFolds=5)  # use 3+ folds in practice
+
+    print("    -crossValidation eseguita")
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -83,6 +89,8 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
     else:
         model = gbtc.fit(trainingData)
 
+    print("    -modello addestrato con " + str(trainingData.count()) + " elementi")
+
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
     testFeatures = testData.map(lambda x: x[:30])
@@ -96,11 +104,29 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
     # Calcolo le predizioni
     result = model.transform(testData)
 
+    print("    -il modello addestrato ha calcolato le predizioni di " + str(testData.count()) + " elementi")
+
     indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(
         schema=['index', 'features'])
 
-    result = result.join(indicesAndFeatures, 'features').drop('features').drop('rawPrediction').drop('probability').orderBy('Index')
+    # result = features, label, rawPrediction, probability, prediction
+    # result.rdd.map = prediction, label, features
+    result = result.rdd.map(lambda x: (x[0], (x[4], x[1])))
 
-    predictionsAndLabels = result.rdd.map(lambda x: (x[1], x[0], x[2]))
+    # indicesAndFeatures = index, features
+    # indicesAndFeatures = features, index
+    indicesAndFeatures = indicesAndFeatures.rdd.map(lambda x: (x[1], x[0]))
+
+    # join = predictions, labels, index
+    predictionsAndLabels = result.join(indicesAndFeatures).map(lambda x: (x[1][0][0], x[1][0][1], x[1][1]))
+
+    print("    -GBT number of predictionsAndLabels elements: " + str(predictionsAndLabels.count()))
+
+    # index, (pred, lab)
+    predictionsAndLabels = predictionsAndLabels.sortByKey(ascending=True)
+    # pred, lab, index
+    predictionsAndLabels = predictionsAndLabels.map(lambda x: (x[1][0], x[1][1], x[0]))
+
+    return predictionsAndLabels
 
     return predictionsAndLabels

@@ -47,6 +47,8 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                  cacheNodeIds=False, checkpointInterval=10, featureSubsetStrategy='auto', seed=None,
                  subsamplingRate=1.0):
 
+    print("Inizio classificazione con RandomForestClassifier")
+
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     rfc = RandomForestClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol,
                                  probabilityCol=probabilityCol, rawPredictionCol=rawPredictionCol, maxDepth=maxDepth,
@@ -55,6 +57,8 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                                  checkpointInterval=checkpointInterval, impurity=impurity, numTrees=numTrees,
                                  featureSubsetStrategy=featureSubsetStrategy, seed=seed,
                                  subsamplingRate=subsamplingRate)
+
+    print("    -modello creato")
 
     # In caso di cross validation
     if enableCrossValidator:
@@ -69,6 +73,8 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                                   estimatorParamMaps=paramGrid,
                                   evaluator=evaluator,
                                   numFolds=5)  # use 3+ folds in practice
+
+    print("    -crossValidation eseguita")
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -85,6 +91,8 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
     else:
         model = rfc.fit(trainingData)
 
+    print("    -modello addestrato con " + str(trainingData.count()) + " elementi")
+
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
     testFeatures = testData.map(lambda x: x[:30])
@@ -98,11 +106,29 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
     # Calcolo le predizioni
     result = model.transform(testData)
 
+    print("    -il modello addestrato ha calcolato le predizioni di " + str(testData.count()) + " elementi")
+
     indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(
         schema=['index', 'features'])
 
-    result = result.join(indicesAndFeatures, 'features').drop('features').drop('rawPrediction').drop('probability').orderBy('Index')
+    # result = features, label, rawPrediction, probability, prediction
+    # result.rdd.map = prediction, label, features
+    result = result.rdd.map(lambda x: (x[0], (x[4], x[1])))
 
-    predictionsAndLabels = result.rdd.map(lambda x: (x[1], x[0], x[2]))
+    # indicesAndFeatures = index, features
+    # indicesAndFeatures = features, index
+    indicesAndFeatures = indicesAndFeatures.rdd.map(lambda x: (x[1], x[0]))
+
+    # join = predictions, labels, index
+    predictionsAndLabels = result.join(indicesAndFeatures).map(lambda x: (x[1][0][0], x[1][0][1], x[1][1]))
+
+    print("    -RF number of predictionsAndLabels elements: " + str(predictionsAndLabels.count()))
+
+    # index, (pred, lab)
+    predictionsAndLabels = predictionsAndLabels.sortByKey(ascending=True)
+    # pred, lab, index
+    predictionsAndLabels = predictionsAndLabels.map(lambda x: (x[1][0], x[1][1], x[0]))
+
+    return predictionsAndLabels
 
     return predictionsAndLabels

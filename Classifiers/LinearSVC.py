@@ -25,10 +25,14 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
               featuresCol="features", labelCol="label", predictionCol="prediction", tol=1e-6,
               rawPredictionCol="rawPrediction", fitIntercept = True, standardization=False, threshold=0.0):
 
+    print("Inizio classificazione con LinearSVSClassifier")
+
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     lsvc = LinearSVC(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxIter=maxIter,
                      regParam=regParam, tol=tol, rawPredictionCol=rawPredictionCol, fitIntercept=fitIntercept,
                      standardization=standardization, threshold=threshold, aggregationDepth=aggregationDepth)
+
+    print("    -modello creato")
 
     # In caso di cross validation
     if enableCrossValidator:
@@ -43,6 +47,8 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
                                   estimatorParamMaps=paramGrid,
                                   evaluator=evaluator,
                                   numFolds=5)  # use 3+ folds in practice
+
+    print("    -crossValidation eseguita")
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -59,6 +65,8 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
     else:
         model = lsvc.fit(trainingData)
 
+    print("    -modello addestrato con " + str(trainingData.count()) + " elementi")
+
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
     testFeatures = testData.map(lambda x: x[:30])
@@ -72,11 +80,33 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
     # Calcolo le predizioni
     result = model.transform(testData)
 
+    print("    -il modello addestrato ha calcolato le predizioni di " + str(testData.count()) + " elementi")
+
     indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(
         schema=['index', 'features'])
 
-    result = result.join(indicesAndFeatures, 'features').drop('features').drop('rawPrediction').drop('probability').orderBy('Index')
+    result.show()
 
-    predictionsAndLabels = result.rdd.map(lambda x: (x[1], x[0], x[2]))
+    indicesAndFeatures.show()
+
+    # result = features, label, rawPrediction, prediction
+    # result.rdd.map = prediction, label, features
+    result = result.rdd.map(lambda x: (x[0], (x[3], x[1])))
+
+    # indicesAndFeatures = index, features
+    # indicesAndFeatures = features, index
+    indicesAndFeatures = indicesAndFeatures.rdd.map(lambda x: (x[1], x[0]))
+
+    # join = predictions, labels, index
+    predictionsAndLabels = result.join(indicesAndFeatures).map(lambda x: (x[1][0][0], x[1][0][1], x[1][1]))
+
+    print("    -LSVC number of predictionsAndLabels elements: " + str(predictionsAndLabels.count()))
+
+    # index, (pred, lab)
+    predictionsAndLabels = predictionsAndLabels.sortByKey(ascending=True)
+    # pred, lab, index
+    predictionsAndLabels = predictionsAndLabels.map(lambda x: (x[1][0], x[1][1], x[0]))
+
+    return predictionsAndLabels
 
     return predictionsAndLabels

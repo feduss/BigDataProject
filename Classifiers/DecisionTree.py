@@ -3,6 +3,7 @@ from pyspark.ml.classification import DecisionTreeClassifier
 from pyspark.ml.evaluation import BinaryClassificationEvaluator
 from pyspark.ml.linalg import Vectors
 from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
+from pyspark.shell import sc
 
 
 # https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#pyspark.ml.classification.DecisionTreeClassifier
@@ -32,10 +33,13 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 #                       Supported options: entropy, gini
 # seed                : Random seed
 
+
 def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCrossValidator=False,
                  featuresCol='features', labelCol='label', predictionCol='prediction', probabilityCol='probability',
                  rawPredictionCol='rawPrediction', minInstancesPerNode=1, minInfoGain=0.0, maxMemoryInMB=256,
                  cacheNodeIds=False, checkpointInterval=10, seed=None):
+
+    print("Inizio classificazione con DecisionTreeClassifier")
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     dtc = DecisionTreeClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol,
@@ -44,6 +48,8 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
                                  minInfoGain=minInfoGain, maxMemoryInMB=maxMemoryInMB, cacheNodeIds=cacheNodeIds,
                                  checkpointInterval=checkpointInterval, impurity=impurity,
                                  seed=seed)
+
+    print("    -modello creato")
 
     # In caso di cross validation
     if enableCrossValidator:
@@ -58,6 +64,7 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
                                   estimatorParamMaps=paramGrid,
                                   evaluator=evaluator,
                                   numFolds=5)  # use 3+ folds in practice
+    print("    -crossValidation eseguita")
 
     # Separo le classi (label) dalle features per il trainingSet
     trainingLabels = trainingData.map(lambda x: x[30])
@@ -74,6 +81,8 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
     else:
         model = dtc.fit(trainingData)
 
+    print("    -modello addestrato con " + str(trainingData.count()) + " elementi")
+
     # Separo le classi (label) dalle features per il testSet
     testLabels = testData.map(lambda x: x[30])
     testFeatures = testData.map(lambda x: x[:30])
@@ -87,15 +96,25 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
     # Calcolo le predizioni
     result = model.transform(testData)
 
+    print("    -il modello addestrato ha calcolato le predizioni di " + str(testData.count()) + " elementi")
+
     indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(schema=['index', 'features'])
 
-    result = result.join(indicesAndFeatures, 'features').drop('features').drop('rawPrediction').drop('probability').orderBy('Index')
+    # result = features, label, rawPrediction, probability, prediction
+    # result.rdd.map = prediction, label, features
+    result = result.rdd.map(lambda x: (x[0], (x[4], x[1])))
 
-    predictionsAndLabels = result.rdd.map(lambda x: (x[1], x[0], x[2]))
+    # indicesAndFeatures = features, index
+    indicesAndFeatures = indicesAndFeatures.rdd.map(lambda x: (x[1], x[0]))
 
-    # Converto i risultati nel formato corretto
-    #predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
-                           #.zip(result.rdd.map(lambda x: x.index))\
-                           #.map(lambda x: (x[0][0], x[0][1], x[1]))
+    #predictionsAndLabels = index. (predictions, labels)
+    predictionsAndLabels = result.join(indicesAndFeatures).map(lambda x: (x[1][1], (x[1][0][0], x[1][0][1])))
+
+    print("    -DT number of predictionsAndLabels elements: " + str(predictionsAndLabels.count()))
+
+    # index, (pred, lab)
+    predictionsAndLabels = predictionsAndLabels.sortByKey(ascending=True)
+    # pred, lab, index
+    predictionsAndLabels = predictionsAndLabels.map(lambda x: (x[1][0], x[1][1], x[0]))
 
     return predictionsAndLabels

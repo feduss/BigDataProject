@@ -9,6 +9,9 @@ def runAnalysis(used_dataset, dataset_code):
     analysis_file = "results"
     ensemble_file = "ensembles_metrics"
 
+    print("Loading...")
+    time.sleep(10)
+
     num_instaces = sc._jsc.sc().getExecutorMemoryStatus().size()
     print("Instances online: " + str(num_instaces))
 

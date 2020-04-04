@@ -26,6 +26,11 @@ def setsCreation(multiplier, dataset):
     for i in range(0, multiplier):
         datas.append(s_df.rdd.randomSplit([0.7, 0.3], seed=1234))
 
+    numTrainingData = datas[0][0].count()
+    numTestData = datas[0][1].count()
+    print(str(numTrainingData + numTestData) + " elementi sono stati divisi in " + str(numTrainingData) +" nel trainingData e "
+          + str(numTestData) + " nel testData")
+
     # Creo una RDD di LabeledPoint
     # converted_data = s_df.rdd.map(lambda x: LabeledPoint(x[30], x[:30]))
 
