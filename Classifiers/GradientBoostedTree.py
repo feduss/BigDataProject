@@ -99,9 +99,8 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
     indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(
         schema=['index', 'features'])
 
-    result = result.join(indicesAndFeatures, 'features').orderBy('index')
+    result = result.join(indicesAndFeatures, 'features').drop('features').drop('rawPrediction').drop('probability').orderBy('Index')
 
-    # Converto i risultati nel formato corretto
-    predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
+    predictionsAndLabels = result.rdd.map(lambda x: (x[1], x[0], x[2]))
 
     return predictionsAndLabels

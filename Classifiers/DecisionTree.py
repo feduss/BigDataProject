@@ -89,9 +89,13 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
 
     indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(schema=['index', 'features'])
 
-    result = result.join(indicesAndFeatures, 'features').orderBy('index')
+    result = result.join(indicesAndFeatures, 'features').drop('features').drop('rawPrediction').drop('probability').orderBy('Index')
+
+    predictionsAndLabels = result.rdd.map(lambda x: (x[1], x[0], x[2]))
 
     # Converto i risultati nel formato corretto
-    predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
+    #predictionsAndLabels = result.rdd.map(lambda x: x.prediction).zip(result.rdd.map(lambda x: x.label))
+                           #.zip(result.rdd.map(lambda x: x.index))\
+                           #.map(lambda x: (x[0][0], x[0][1], x[1]))
 
     return predictionsAndLabels

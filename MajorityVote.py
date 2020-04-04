@@ -131,6 +131,17 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
 def ensembler(predALab, destination_file):
     ensemblePair = {}
 
+    dt = predALab['Decision_Tree'].collect()
+    print("\nDT: \n1) " + dt[0] + "\n2) " + dt[1] + "\n3) " + dt[2])
+    rf = predALab['Random_Forest'].collect()
+    print("\nRF: \n1) " + rf[0] + "\n2) " + rf[1] + "\n3) " + rf[2])
+    gbt = predALab['Gradient_Boosted_Tree'].collect()
+    print("\nGBT: \n1) " + gbt[0] + "\n2) " + gbt[1] + "\n3) " + gbt[2])
+    lr = predALab['Logistic_Regression'].collect()
+    print("\nLR: \n1) " + lr[0] + "\n2) " + lr[1] + "\n3) " + lr[2])
+    lsvc = predALab['Linear_SVC'].collect()
+    print("\nLSVC: \n1) " + lsvc[0] + "\n2) " + lsvc[1] + "\n3) " + lsvc[2])
+
     print("Esecuzione ensemble pairs")
     ensemblePair.update({'DT RF': majorityVotePairs(predALab['Decision_Tree'],
                                                     predALab['Random_Forest'])})
@@ -225,6 +236,14 @@ def ensembler(predALab, destination_file):
     print("Ensemble quintuple eseguito")
 
     result = {}
+
+    print("########################")
+    print("Pair: " + str(ensemblePair))
+    print("Triple: " + str(ensembleTriple))
+    print("Quadruple: " + str(ensembleQuadruple))
+    print("Quintuple: " + str(ensembleQuintuple))
+    print("########################")
+
     for i in range(len(list(ensemblePair.keys()))):
         result.update({list(ensemblePair.keys())[i]: ma.metricsEvalutation(sc.parallelize(list(ensemblePair.values())[i]), len(list(ensemblePair.values())[i]), False)})
 
