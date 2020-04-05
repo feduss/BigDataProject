@@ -1,4 +1,5 @@
 # coding=utf-8
+from pyspark.ml import Pipeline
 from pyspark.ml.classification import LinearSVC
 from pyspark.ml.evaluation import BinaryClassificationEvaluator
 from pyspark.ml.linalg import Vectors
@@ -34,6 +35,7 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
 
     print("    -modello creato")
 
+    validator = None
     # In caso di cross validation
     if enableCrossValidator:
         # Creo la mappa dei parametri
@@ -47,66 +49,32 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
                                   estimatorParamMaps=paramGrid,
                                   evaluator=evaluator,
                                   numFolds=5)  # use 3+ folds in practice
-
-    print("    -crossValidation eseguita")
-
-    # Separo le classi (label) dalle features per il trainingSet
-    trainingLabels = trainingData.map(lambda x: x[30])
-    trainingFeatures = trainingData.map(lambda x: x[:30])
-
-    # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
-    trainingData = trainingFeatures \
-        .map(lambda x: Vectors.dense(x)).zip(trainingLabels) \
-        .toDF(schema=['features', 'label'])
-
-    # Genero il modello (addestrato attraverso la cross validation, o con i parametri in input)
-    if enableCrossValidator:
-        model = crossVal.fit(trainingData)
+        validator = crossVal
     else:
-        model = lsvc.fit(trainingData)
+        validator = lsvc
 
-    print("    -modello addestrato con " + str(trainingData.count()) + " elementi")
+    print("    -validator creato")
 
-    # Separo le classi (label) dalle features per il testSet
-    testLabels = testData.map(lambda x: x[30])
-    testFeatures = testData.map(lambda x: x[:30])
-    testIndices = testData.map(lambda x: x[31])
+    training = trainingData.map(lambda x: (x[31], Vectors.dense(x[:30]), x[30])).toDF(
+        schema=['index', 'features', 'label']).orderBy('index')
 
-    # Creo un dataframe [features:vector, label: double] (Vectors.dense rimuove un livello di annidamento)
-    testData = testFeatures \
-        .map(lambda x: Vectors.dense(x)).zip(testLabels) \
-        .toDF(schema=['features', 'label'])
+    # Configure an ML pipeline, which consists of three stages: tokenizer, hashingTF, and lr.
+    # tokenizer = Tokenizer(inputCol="features", outputCol="transactions")
+    # hashingTF = HashingTF(inputCol=tokenizer.getOutputCol(), outputCol="rawFeatures", numFeatures=29)
 
-    # Calcolo le predizioni
-    result = model.transform(testData)
+    pipeline = Pipeline(stages=[validator])
 
-    print("    -il modello addestrato ha calcolato le predizioni di " + str(testData.count()) + " elementi")
+    model = pipeline.fit(training)
 
-    indicesAndFeatures = testIndices.zip(testFeatures.map(lambda x: Vectors.dense(x))).toDF(
-        schema=['index', 'features'])
+    print("    -modello addestrato con la pipeline (" + str(training.count()) + " elementi utilizzati come training)")
 
-    result.show()
+    test = testData.map(lambda x: (x[30], Vectors.dense(x[:30]), x[31])).toDF(
+        schema=['label', 'features', 'index']).orderBy('index')
 
-    indicesAndFeatures.show()
+    # prediction = predictions, label, index
+    predictionsAndLabels = model.transform(test).rdd.map(lambda x: (x[4], x[0], x[2]))
 
-    # result = features, label, rawPrediction, prediction
-    # result.rdd.map = prediction, label, features
-    result = result.rdd.map(lambda x: (x[0], (x[3], x[1])))
-
-    # indicesAndFeatures = index, features
-    # indicesAndFeatures = features, index
-    indicesAndFeatures = indicesAndFeatures.rdd.map(lambda x: (x[1], x[0]))
-
-    # join = predictions, labels, index
-    predictionsAndLabels = result.join(indicesAndFeatures).map(lambda x: (x[1][0][0], x[1][0][1], x[1][1]))
-
-    print("    -LSVC number of predictionsAndLabels elements: " + str(predictionsAndLabels.count()))
-
-    # index, (pred, lab)
-    predictionsAndLabels = predictionsAndLabels.sortByKey(ascending=True)
-    # pred, lab, index
-    predictionsAndLabels = predictionsAndLabels.map(lambda x: (x[1][0], x[1][1], x[0]))
-
-    return predictionsAndLabels
+    print("    -" + str(predictionsAndLabels.count()) + " elementi predetti (" + str(
+        test.count()) + " elementi usati come test)")
 
     return predictionsAndLabels

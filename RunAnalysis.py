@@ -12,7 +12,7 @@ def runAnalysis(used_dataset, dataset_code):
     print("Loading...")
     time.sleep(10)
 
-    num_instaces = sc._jsc.sc().getExecutorMemoryStatus().size()
+    num_instaces = sc._jsc.sc().getExecutorMemoryStatus().size() - 1
     print("Instances online: " + str(num_instaces))
 
     start = time.time()
