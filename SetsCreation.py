@@ -22,7 +22,8 @@ def setsCreation(multiplier, dataset):
 
     # Converto il ds pandas in un ds spark, dando un numero di partition pari alla radice quadrata degli elementi
     s_df = spark.createDataFrame(p_df).repartition(int(math.sqrt(len(p_df))))
-
+    
+    s_df.cache()
     for i in range(0, multiplier):
         datas.append(s_df.rdd.randomSplit([0.7, 0.3], seed=1234))
 
@@ -30,7 +31,9 @@ def setsCreation(multiplier, dataset):
     numTestData = datas[0][1].count()
     print(str(numTrainingData + numTestData) + " elementi sono stati divisi in " + str(numTrainingData) +" nel trainingData e "
           + str(numTestData) + " nel testData")
-
+    print("Indici di training: " + str(sorted(datas[0][0].map(lambda x: x[31]).collect())))
+    print("#####")
+    print("Indici di test: " + str(sorted(datas[0][1].map(lambda x: x[31]).collect())))
     # Creo una RDD di LabeledPoint
     # converted_data = s_df.rdd.map(lambda x: LabeledPoint(x[30], x[:30]))
 

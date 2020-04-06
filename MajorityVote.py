@@ -130,7 +130,7 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
 
 def ensembler(predALab, destination_file):
     ensemblePair = {}
-
+    '''
     dt = predALab['Decision_Tree']
     print("\nDT ("+str(len(dt)) +"): \n1) " +  str(dt[0]) + "\n2) " +  str(dt[1]) + "\n3) " +  str(dt[2]))
 
@@ -145,6 +145,7 @@ def ensembler(predALab, destination_file):
 
     lsvc = predALab['Linear_SVC']
     print("\nLSVC ("+str(len(lsvc)) +"): \n1) " +  str(lsvc[0]) + "\n2) " +  str(lsvc[1]) + "\n3) " +  str(lsvc[2]))
+    '''
 
     print("Esecuzione ensemble pairs")
     ensemblePair.update({'DT RF': majorityVotePairs(predALab['Decision_Tree'],

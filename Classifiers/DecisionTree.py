@@ -6,7 +6,7 @@ from pyspark.ml.feature import Tokenizer, HashingTF
 from pyspark.ml.linalg import Vectors
 from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 from pyspark.shell import sc
-
+from pyspark.sql.functions import broadcast
 
 # https://spark.apache.org/docs/latest/api/python/pyspark.ml.html#pyspark.ml.classification.DecisionTreeClassifier
 # featuresCol         : Features column name
@@ -81,6 +81,8 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
 
     pipeline = Pipeline(stages=[validator])
 
+    print("    -training (solo index): " + str(training.rdd.map(lambda x: x[0]).collect()))
+
     model = pipeline.fit(training)
 
     print("    -modello addestrato con la pipeline (" + str(training.count()) + " elementi utilizzati come training)")
@@ -88,8 +90,12 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
     test = testData.map(lambda x: (x[30], Vectors.dense(x[:30]), x[31])).toDF(
         schema=['label', 'features', 'index']).orderBy('index')
 
+    print("    -test (solo index)" + str(test.rdd.map(lambda x: x[2]).collect()))
+
     #prediction = predictions, label, index
-    predictionsAndLabels = model.transform(test).rdd.map(lambda x: (x[5], x[0], x[2]))
+    predictionsAndLabels = model.transform(broadcast(test)).rdd.map(lambda x: (x[5], x[0], x[2]))
+
+    print("    -predictionAndLabels (solo index): " + str(predictionsAndLabels.map(lambda x: x[2]).collect()))
 
     print("    -" + str(predictionsAndLabels.count()) + " elementi predetti (" + str(
         test.count()) + " elementi usati come test)")
