@@ -13,6 +13,10 @@ doUndersampled = True # False = usa il ds completo
 # dataset = sns.load_dataset("credicard.csv")
 dataset = pd.read_csv(str(Path(__file__).parent) + '/CSV_Sources/creditcard.csv') #Apro il Dataset come Panda DataFrame
 
+print("Row number pre: " + str(dataset.count()))
+dataset = dataset.drop_duplicates()
+print("Row number post:"+ str(dataset.count()))
+
 
 if(doUndersampled):
     # Calcolo il numero di frodi e non frodi presenti
