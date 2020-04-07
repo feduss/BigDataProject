@@ -130,22 +130,6 @@ def getLabelsAndPredictions(best_result_lines, destination_file, used_dataset):
 
 def ensembler(predALab, destination_file):
     ensemblePair = {}
-    '''
-    dt = predALab['Decision_Tree']
-    print("\nDT ("+str(len(dt)) +"): \n1) " +  str(dt[0]) + "\n2) " +  str(dt[1]) + "\n3) " +  str(dt[2]))
-
-    rf = predALab['Random_Forest']
-    print("\nRF ("+str(len(rf)) +"): \n1) " +  str(rf[0]) + "\n2) " +  str(rf[1]) + "\n3) " +  str(rf[2]))
-
-    gbt = predALab['Gradient_Boosted_Tree']
-    print("\nGBT ("+str(len(gbt)) +"): \n1) " +  str(gbt[0]) + "\n2) " +  str(gbt[1]) + "\n3) " +  str(gbt[2]))
-
-    lr = predALab['Logistic_Regression']
-    print("\nLR ("+str(len(lr)) +"): \n1) " +  str(lr[0]) + "\n2) " +  str(lr[1]) + "\n3) " +  str(lr[2]))
-
-    lsvc = predALab['Linear_SVC']
-    print("\nLSVC ("+str(len(lsvc)) +"): \n1) " +  str(lsvc[0]) + "\n2) " +  str(lsvc[1]) + "\n3) " +  str(lsvc[2]))
-    '''
 
     print("Esecuzione ensemble pairs")
     ensemblePair.update({'DT RF': majorityVotePairs(predALab['Decision_Tree'],
@@ -242,13 +226,6 @@ def ensembler(predALab, destination_file):
 
     result = {}
 
-    print("########################")
-    print("Pair: " + str(ensemblePair))
-    print("Triple: " + str(ensembleTriple))
-    print("Quadruple: " + str(ensembleQuadruple))
-    print("Quintuple: " + str(ensembleQuintuple))
-    print("########################")
-
     for i in range(len(list(ensemblePair.keys()))):
         result.update({list(ensemblePair.keys())[i]: ma.metricsEvalutation(sc.parallelize(list(ensemblePair.values())[i]), len(list(ensemblePair.values())[i]), False)})
 
@@ -279,24 +256,37 @@ def ensembler(predALab, destination_file):
 
 def majorityVotePairs(one, two):
     if len(one) != len(two):
-        return ArithmeticError
+        print("Gli elementi in input hanno dimensione diversa (" + str(len(one)) + ", " + str(len(two)) + ")")
+        print("Correggere il codice e riprovare ad eseguirlo.")
+        exit(1)
 
     onetwo = []
 
     for i in range(len(one)):
-        if one[i][0] == two[i][0]:
-            onetwo.append(one[i])
-        elif one[i][0] == 1.0:
-            onetwo.append(one[i])
+        onei = one[i]
+        twoi = two[i]
+
+        sum = onei[0] + twoi[0]
+
+        if onei[1] == twoi[1]:
+            # La maggior parte è fraudolenta (almeno 2/2)
+            if sum == 2.0:
+                onetwo.append((onei[1], 1.0))
+            else:
+                onetwo.append((onei[1], 0.0))
         else:
-            onetwo.append(two[i])
+            print("Uno o più elementi sono mancanti o non in ordine (" + str(onei) + ", " + str(twoi) + ")")
+            print("Correggere il codice e riprovare ad eseguirlo.")
+            exit(1)
 
     return onetwo
 
 
 def majorityVoteTriple(one, two, three):
     if len(one) != len(two) or len(one) != len(three) or len(two) != len(three):
-        return ArithmeticError
+        print("Gli elementi in input hanno dimensione diversa (" + str(len(one)) + ", " + str(len(two)) + ", " + str(len(three)) + ")")
+        print("Correggere il codice e riprovare ad eseguirlo.")
+        exit(1)
 
     onetwothree = []
 
@@ -314,7 +304,10 @@ def majorityVoteTriple(one, two, three):
             else:
                 onetwothree.append((onei[1], 0.0))
         else:
-            return AssertionError
+            print("Uno o più elementi sono mancanti o non in ordine (" + str(onei) + ", " + str(twoi) + ", " +
+                  str(threei) + ")")
+            print("Correggere il codice e riprovare ad eseguirlo.")
+            exit(1)
 
     return onetwothree
 
@@ -323,7 +316,10 @@ def majorityVoteQuadruple(one, two, three, four):
     if len(one) != len(two) or len(one) != len(three) or len(one) != len(four) \
             or len(two) != len(three) or len(two) != len(four) \
             or len(three) != len(four):
-        return ArithmeticError
+        print("Gli elementi in input hanno dimensione diversa (" + str(len(one)) + ", " + str(len(two)) + ", "
+              + str(len(three)) + ", " + str(len(four)) + ")")
+        print("Correggere il codice e riprovare ad eseguirlo.")
+        exit(1)
 
     onetwothreefour = []
 
@@ -342,7 +338,10 @@ def majorityVoteQuadruple(one, two, three, four):
             else:
                 onetwothreefour.append((onei[1], 0.0))
         else:
-            return AssertionError
+            print("Uno o più elementi sono mancanti o non in ordine (" + str(onei) + ", " + str(twoi) + ", " +
+                  str(threei) + ", " + str(fouri) + ")")
+            print("Correggere il codice e riprovare ad eseguirlo.")
+            exit(1)
 
     return onetwothreefour
 
@@ -352,7 +351,10 @@ def majorityVoteQuintuple(one, two, three, four, five):
             or len(two) != len(three) or len(two) != len(four) or len(two) != len(five) \
             or len(three) != len(four) or len(three) != len(five) \
             or len(four) != len(five):
-        return ArithmeticError
+        print("Gli elementi in input hanno dimensione diversa (" + str(len(one)) + ", " + str(len(two)) + ", "
+              + str(len(three)) + ", " + str(len(four)) + ", " + str(len(five)) + ")")
+        print("Correggere il codice e riprovare ad eseguirlo.")
+        exit(1)
 
     onetwothreefourfive = []
 
@@ -372,18 +374,9 @@ def majorityVoteQuintuple(one, two, three, four, five):
             else:
                 onetwothreefourfive.append((onei[1], 0.0))
         else:
-            return AssertionError
+            print("Uno o più elementi sono mancanti o non in ordine (" + str(onei) + ", " + str(twoi) + ", " +
+                  str(threei) + ", " + str(fouri) + ", " + str(fivei) + ")")
+            print("Correggere il codice e riprovare ad eseguirlo.")
+            exit(1)
 
     return onetwothreefourfive
-
-
-'''
-if __name__ == '__main__':
-    ra.ResultAnalysis(5, 'classifiers_metrics1_final', 'results1_final')
-    ra.ResultAnalysis(5, 'classifiers_metrics2_final', 'results2_final')
-
-    for i in range(1, 3):
-        bestResults = getBestResults(num_classifiers=5, used_dataset=i)
-        predALab = getLabelsAndPredictions(bestResults, used_dataset=i)
-        ensembler(predALab, used_dataset=i)
-'''

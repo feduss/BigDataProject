@@ -81,7 +81,7 @@ def logisticRegression(trainingData, testData, maxIter, regParam, elasticNetPara
 
     print("    -validator creato")
 
-    training = trainingData.map(lambda x: (x[31], Vectors.dense(x[:30]), x[30])).toDF(
+    training = trainingData.map(lambda x: (x[31], Vectors.dense(x[1:29]), x[30])).toDF(
         schema=['index', 'features', 'label']).orderBy('index')
 
     # Configure an ML pipeline, which consists of three stages: tokenizer, hashingTF, and lr.
@@ -94,7 +94,7 @@ def logisticRegression(trainingData, testData, maxIter, regParam, elasticNetPara
 
     print("    -modello addestrato con la pipeline (" + str(training.count()) + " elementi utilizzati come training)")
 
-    test = testData.map(lambda x: (x[30], Vectors.dense(x[:30]), x[31])).toDF(
+    test = testData.map(lambda x: (x[30], Vectors.dense(x[1:29]), x[31])).toDF(
         schema=['label', 'features', 'index']).orderBy('index')
 
     # prediction = predictions, label, index

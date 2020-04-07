@@ -3,29 +3,32 @@
 
 GUIDA ALL'INSTALLAZIONE:
 
-Installare git lfs:
+-Caricamento repository e dataset-
+
+Effettuare la clone con git:
 ```console
-user@user:~$ wget https://github.com/git-lfs/git-lfs/releases/download/v2.10.0/git-lfs-linux-amd64-v2.10.0.tar.gz
-user@user:~$ mkdir git-lfs-linux-amd64-v2.10.0
-user@user:~$ tar -xf git-lfs-linux-amd64-v2.10.0.tar.gz --directory /home/ubuntu/git-lfs-linux-amd64-v2.10.0/
-user@user:~$ sudo ./git-lfs-linux-amd64-v2.10.0/install.sh
+user@user:~$ git lfs https://github.com/feduss/BigDataProject.git
 ```
 
-Effettuare la clone con git lfs:
+Scaricare il dataset da google drive:
 ```console
-user@user:~$ git lfs clone https://github.com/feduss/BigDataProject.git
+user@user:~$ wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1wr2DC3jRIwtmd-_kt-kbskDNgFHL0RBS' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1wr2DC3jRIwtmd-_kt-kbskDNgFHL0RBS" -O creditcard.csv && rm -rf /tmp/cookies.txt
 ```
 
-PER ESEGUIRE QUESTO PROGETTO E' NECESSARIO AVERE, CORRETTAMENTE INSTALLATO, PYSPARK.
+<INSERIRE QUI GUIDA TERRAFORM/PYSPARK/HADOOP>
+
+-Installazione requisiti-
+
+Nelle istanze aws, seguire questi passaggi:
 
 Impostare python3 su pyspark:
 ```console
 user@user:~$ sudo nano spark/conf/spark-env.sh
 ```
-  Ed aggiungere in coda:
-  ```bash
-  export PYSPARK_PYTHON=python3
-  ```
+Ed aggiungere in coda:
+```bash
+export PYSPARK_PYTHON=python3
+```
 
 Pacchetti richiesti per eseguire il codice:
 ```console
@@ -35,7 +38,7 @@ user@user:~$ sudo pip3 install sklearn
 user@user:~$ sudo pip3 install statistics
 ```
 
-AVVIARE IL MASTER E GLI SLAVES CON SPARK
+-Esecuzione del codice-
 
 Per avviare il testing e l'analisi:
 ```console

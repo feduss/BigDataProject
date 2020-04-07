@@ -73,7 +73,7 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
 
     print("    -validator creato")
 
-    training = trainingData.map(lambda x: (x[31], Vectors.dense(x[:30]), x[30])).toDF(schema=['index', 'features', 'label']).orderBy('index')
+    training = trainingData.map(lambda x: (x[31], Vectors.dense(x[1:29]), x[30])).toDF(schema=['index', 'features', 'label']).orderBy('index')
 
     # Configure an ML pipeline, which consists of three stages: tokenizer, hashingTF, and lr.
     #tokenizer = Tokenizer(inputCol="features", outputCol="transactions")
@@ -81,16 +81,12 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
 
     pipeline = Pipeline(stages=[validator])
 
-    print("    -training (solo index): " + str(training.rdd.map(lambda x: x[0]).collect()))
-
     model = pipeline.fit(training)
 
     print("    -modello addestrato con la pipeline (" + str(training.count()) + " elementi utilizzati come training)")
 
-    test = testData.map(lambda x: (x[30], Vectors.dense(x[:30]), x[31])).toDF(
+    test = testData.map(lambda x: (x[30], Vectors.dense(x[1:29]), x[31])).toDF(
         schema=['label', 'features', 'index']).orderBy('index')
-
-    print("    -test (solo index)" + str(test.rdd.map(lambda x: x[2]).collect()))
 
     #prediction = predictions, label, index
     predictionsAndLabels = model.transform(broadcast(test)).rdd.map(lambda x: (x[5], x[0], x[2]))
