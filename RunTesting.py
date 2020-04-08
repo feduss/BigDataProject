@@ -1,6 +1,9 @@
 # coding=utf-8
 import sys
 import time
+
+from pyspark.shell import sc
+
 import TestClassifiers as tc
 import ResultAnalysis as resa
 import RunAnalysis as ra
@@ -13,6 +16,12 @@ def runTesting(used_dataset, dataset_code):
 
     metric_file = "classifiers_metrics"
     analysis_file = "results"
+
+    print("Loading...")
+    time.sleep(10)
+
+    num_instaces = sc._jsc.sc().getExecutorMemoryStatus().size() - 1
+    print("Instances online: " + str(num_instaces))
 
     mainTime = time.time()
     tc.mainTestClassifier(destination_file=metric_file + dataset_code,

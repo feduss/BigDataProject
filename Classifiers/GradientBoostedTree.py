@@ -48,7 +48,7 @@ def gradientBoostedTrees(trainingData, testData, maxIter, maxDepth, maxBins, ena
                          lossType='logistic', stepSize=0.1, seed=None, subsamplingRate=1.0,
                          featureSubsetStrategy='all'):
 
-    print("Inizio classificazione con GBTClassifier")
+    print("\nInizio classificazione con GBTClassifier")
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     gbtc = GBTClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxDepth=maxDepth,

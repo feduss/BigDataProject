@@ -41,7 +41,7 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
                  rawPredictionCol='rawPrediction', minInstancesPerNode=1, minInfoGain=0.0, maxMemoryInMB=256,
                  cacheNodeIds=False, checkpointInterval=10, seed=None):
 
-    print("Inizio classificazione con DecisionTreeClassifier")
+    print("\nInizio classificazione con DecisionTreeClassifier")
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     dtc = DecisionTreeClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol,
@@ -90,8 +90,6 @@ def decisionTree(trainingData, testData, impurity, maxDepth, maxBins, enableCros
 
     #prediction = predictions, label, index
     predictionsAndLabels = model.transform(broadcast(test)).rdd.map(lambda x: (x[5], x[0], x[2]))
-
-    print("    -predictionAndLabels (solo index): " + str(predictionsAndLabels.map(lambda x: x[2]).collect()))
 
     print("    -" + str(predictionsAndLabels.count()) + " elementi predetti (" + str(
         test.count()) + " elementi usati come test)")

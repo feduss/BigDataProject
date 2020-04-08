@@ -48,7 +48,7 @@ def randomForest(trainingData, testData, impurity, maxDepth, maxBins, numTrees, 
                  cacheNodeIds=False, checkpointInterval=10, featureSubsetStrategy='auto', seed=None,
                  subsamplingRate=1.0):
 
-    print("Inizio classificazione con RandomForestClassifier")
+    print("\nInizio classificazione con RandomForestClassifier")
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     rfc = RandomForestClassifier(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol,

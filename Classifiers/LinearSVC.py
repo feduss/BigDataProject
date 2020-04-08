@@ -26,7 +26,7 @@ def linearSVC(trainingData, testData, maxIter, regParam, aggregationDepth, enabl
               featuresCol="features", labelCol="label", predictionCol="prediction", tol=1e-6,
               rawPredictionCol="rawPrediction", fitIntercept = True, standardization=False, threshold=0.0):
 
-    print("Inizio classificazione con LinearSVSClassifier")
+    print("\nInizio classificazione con LinearSVCClassifier")
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     lsvc = LinearSVC(featuresCol=featuresCol, labelCol=labelCol, predictionCol=predictionCol, maxIter=maxIter,

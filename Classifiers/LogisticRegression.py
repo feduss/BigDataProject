@@ -50,7 +50,7 @@ def logisticRegression(trainingData, testData, maxIter, regParam, elasticNetPara
                        probabilityCol="probability", rawPredictionCol="rawPrediction", standardization=False,
                        family="binomial"):
 
-    print("Inizio classificazione con LogisticRegressionClassifier")
+    print("\nInizio classificazione con LogisticRegressionClassifier")
 
     # Inizializzo il modello del classificatore con i parametri in input (e quelli default)
     lrc = LogisticRegression(maxIter=maxIter, regParam=regParam, elasticNetParam=elasticNetParam,
