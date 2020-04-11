@@ -3,7 +3,16 @@
 
 GUIDA ALL'INSTALLAZIONE:
 
-- Creare un utente IAM su aws, salvando access_key_id e secret_access_key_id, che serviranno in seguito
+- Creare un utente IAM su aws, salvando access_key_id e secret_access_key_id, che serviranno in seguito:
+    - Andare su aws e cliccare su Servizi
+    - Cercare la voce IAM sotto Servizi, sicurezza, identità e conformità, e cliccarci
+    - Cliccare su Utenti e, in seguito, Aggiungi Utente
+    - Inserire uno Username a scelta
+    - Scegliere Programmatic Access come access type e cliccare su next (in basso a dx)
+    - Selezionare Attach Existing Policies Directly e flaggare Administrator Access
+    - Cliccare next sino a quando non è possibile creare l'utente
+    - Salvare le credenziali in formato csv
+    
 - Installare awscli con il seguente comando:
     
     ```console
@@ -16,9 +25,16 @@ GUIDA ALL'INSTALLAZIONE:
     user@user:~$ aws configure
     ```
     
-    - Inserendo l'access_key_id e la secret_access_key_id salvate prima, eu-west-3 come region e json come output format
+    - Inserendo l'access_key_id e la secret_access_key_id salvate prima, eu-west-3 come region name e json come output format
     
 - Creare una key-pair su aws, avendo cura di salvare la chiave.pem, che servirà in seguito.
+    
+    - Andare su aws e cliccare su Servizi,
+    - Cliccare su EC2
+    - Cliccare su Key Pair in Network & Security
+    - Cliccare su creare Key Pair in alto a dx
+    - Assegnare un nome a scelta e cliccare sul formato file PEM
+    - Cliccare su crea e salvare la chiave PEM
 
 - Scaricare lo zip "terraform.zip" e scompattarlo.
 - Aggiornare il file delle variabili (terraform.tfvars della cartella appena estratta) con i dati richiesti (per un template di come impostare le variabili, controllare il file variables.tf). Il progetto è stato testato con istanze aws t2.2xlarge.
