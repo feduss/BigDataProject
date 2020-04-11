@@ -35,6 +35,11 @@ GUIDA ALL'INSTALLAZIONE:
     - Cliccare su creare Key Pair in alto a dx
     - Assegnare un nome a scelta e cliccare sul formato file PEM
     - Cliccare su crea e salvare la chiave PEM
+    
+    Cambiare poi i permessi della chiave.pem, digitando sul terminale aperto nella cartella della chiave (mettendo il nome della chiave):
+    ```console
+    user@user:~$ chmod 400 my-key-pair.pem
+    ```
 
 - Scaricare lo zip "terraform.zip" e scompattarlo.
 - Aggiornare il file delle variabili (terraform.tfvars della cartella appena estratta) con i dati richiesti (per un template di come impostare le variabili, controllare il file variables.tf). Il progetto è stato testato con istanze aws t2.2xlarge. Il parametro di default per il tipo di istanze è impostato a "t2.micro"; per cambiarlo manualmente, aggiungere al file terraform.tfvars la voce "instance_type" e assegnare il tipo desiderato (stessa cosa se si volesse cambiare regione o ami per le istanze, rispettivamente nelle variabili "AWS_region" e "AMI_code").
@@ -56,19 +61,12 @@ GUIDA ALL'INSTALLAZIONE:
     user@user:~$ ./terraform apply -auto-approve
     ```
     
-- In tutte le istanze aws, seguire questi passaggi:
+- Accedere alle istanze su AWS attraverso ssh. In tutte le istanze, seguire questi passaggi:
 
     ```console
     user@user:~$ sudo nano /etc/hosts
     ```
-    e modificare:
-    
-    IP.MA.ST.ER
-    IP.SL.AV.E1 
-    IP.SL.AV.E2 
-    IP.SL.AV.E3
-    
-    dove master è il namenode, slave1 è datanode1, etc.
+    e modificare: IP.MA.ST.ER, IP.SL.AV.E1, IP.SL.AV.E2, IP.SL.AV.E3 con gli IP, o i DNS, delle rispettive istanze (dove master è il namenode, slave1 è datanode1, etc.).
     
 - Solo nel master, quando tutte le istanze sono attive, lanciare i seguenti comandi, per ultimare la configurazione.
 
