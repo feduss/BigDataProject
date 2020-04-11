@@ -99,8 +99,15 @@ GUIDA ALL'ESECUZIONE DEL CODICE:
     ```console
     user@user:~$ ./spark/sbin/start-slave.sh spark://dnsmaster:7077
     ```
+    !!! Nel caso di errori dovuti alla mancanza di java, installarlo manualmente con il seguente comando!!!
+    
+    ```console
+    user@user:~$ sudo apt-get install -y openjdk-8-jdk
+    ```
 
 !!!Verificare che tutti gli slave siano stati riconosciuti dal master, controllando su IPMASTER:8080 nel browser!!!
+
+Nel master:
     
 - Per avviare il testing e l'analisi, da un terminale aperto nella home dell'utente corrente:
 ```console
