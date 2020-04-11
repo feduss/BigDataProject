@@ -66,7 +66,12 @@ GUIDA ALL'INSTALLAZIONE:
     ```console
     user@user:~$ sudo nano /etc/hosts
     ```
-    e modificare: IP.MA.ST.ER, IP.SL.AV.E1, IP.SL.AV.E2, IP.SL.AV.E3 con gli IP, o i DNS, delle rispettive istanze (dove master è il namenode, slave1 è datanode1, etc.).
+    e modificare: 
+    IP.MA.ST.ER con IP o DNS del master (namenode)
+    IP.SL.AV.E1 con IP o DNS dello slave 1 (datanode1)
+    IP.SL.AV.E2 con IP o DNS dello slave 2 (datanode2)
+    IP.SL.AV.E3 con IP o DNS dello slave 3 (datanode3)
+    !!! Non farsi confondere dal fatto che, nel file, IP.MA.ST.ER è assegnato sia a namenode che a datanode1. Il nodo principale crea comunque uno slave su cui lavorare, quindi i numeri dei nodi solo slave sono slittati di +1 !!!
     
 - Solo nel master, quando tutte le istanze sono attive, lanciare i seguenti comandi, per ultimare la configurazione.
 
@@ -97,13 +102,13 @@ GUIDA ALL'ESECUZIONE DEL CODICE:
     ```console
     user@user:~$ ./spark/sbin/start-slave.sh spark://dnsmaster:7077
     ```
-    !!! Nel caso di errori dovuti alla mancanza di java, installarlo manualmente con il seguente comando!!!
+    !!! Nel caso di errori dovuti alla mancanza di java, installarlo manualmente con il seguente comando !!!
     
     ```console
     user@user:~$ sudo apt-get install -y openjdk-8-jdk
     ```
 
-!!!Verificare che tutti gli slave siano stati riconosciuti dal master, controllando su IPMASTER:8080 nel browser!!!
+!!! Verificare che tutti gli slave siano stati riconosciuti dal master, controllando su IPMASTER:8080 nel browser !!!
 
 Nel master:
     
