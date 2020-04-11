@@ -37,18 +37,18 @@ GUIDA ALL'INSTALLAZIONE:
     - Cliccare su crea e salvare la chiave PEM
 
 - Scaricare lo zip "terraform.zip" e scompattarlo.
-- Aggiornare il file delle variabili (terraform.tfvars della cartella appena estratta) con i dati richiesti (per un template di come impostare le variabili, controllare il file variables.tf). Il progetto è stato testato con istanze aws t2.2xlarge.
+- Aggiornare il file delle variabili (terraform.tfvars della cartella appena estratta) con i dati richiesti (per un template di come impostare le variabili, controllare il file variables.tf). Il progetto è stato testato con istanze aws t2.2xlarge. Il parametro di default per il tipo di istanze è impostato a "t2.micro"; per cambiarlo manualmente, aggiungere al file terraform.tfvars la voce "instance_type" e assegnare il tipo desiderato (stessa cosa se si volesse cambiare regione o ami per le istanze, rispettivamente nelle variabili "AWS_region" e "AMI_code").
 
 - Aprire un terminale nella cartella appena estratta ed eseguire i seguenti comandi.
-
-    - Per visualizzare ciò che terraform dovrà creare:
-    ```console
-    user@user:~$ ./terraform plan
-    ```
     
     - Per inizializzare terraform, scaricando i plugin dei provider (in questo caso aws) da utilizzare:
     ```console
     user@user:~$ ./terraform init
+    ```
+    
+    - Per visualizzare ciò che terraform dovrà creare:
+    ```console
+    user@user:~$ ./terraform plan
     ```
   
     - Per avviare la creazione delle istanze:
