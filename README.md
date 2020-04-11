@@ -61,7 +61,7 @@ GUIDA ALL'INSTALLAZIONE:
     user@user:~$ ./terraform apply -auto-approve
     ```
     
-- Accedere alle istanze su AWS attraverso ssh. In tutte le istanze, seguire questi passaggi:
+- Accedere alle istanze su AWS attraverso ssh (tasto dx sull'istanza aws e cliccare su connect, usando poi la riga di codice sotto "Example" per accedervi). In tutte le istanze, seguire questi passaggi:
 
     ```console
     user@user:~$ sudo nano /etc/hosts
