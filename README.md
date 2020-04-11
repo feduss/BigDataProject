@@ -3,8 +3,25 @@
 
 GUIDA ALL'INSTALLAZIONE:
 
+- Creare un utente IAM su aws, salvando access_key_id e secret_access_key_id, che serviranno in seguito
+- Installare awscli con il seguente comando:
+    
+    ```console
+    user@user:~$ sudo apt install awscli
+    ```
+ 
+- Dopo aver installato aws cli, eseguire il seguente comando per salvare le credenziali in locale:
+
+    ```console
+    user@user:~$ aws configure
+    ```
+    
+    - Inserendo l'access_key_id e la secret_access_key_id salvate prima, eu-west-3 come region e json come output format
+    
+- Creare una key-pair su aws, avendo cura di salvare la chiave.pem, che servirà in seguito.
+
 - Scaricare lo zip "terraform.zip" e scompattarlo.
-- Aggiornare il file delle variabili (terraform.tfvars nella root della cartella appena estratta) con i dati richiesti (ps: il codice del progetto è stato testato con istanza t2.2xlarge)
+- Aggiornare il file delle variabili (terraform.tfvars della cartella appena estratta) con i dati richiesti (per un template di come impostare le variabili, controllare il file variables.tf). Il progetto è stato testato con istanze aws t2.2xlarge.
 
 - Aprire un terminale nella cartella appena estratta ed eseguire i seguenti comandi.
 
