@@ -77,14 +77,12 @@ GUIDA ALL'INSTALLAZIONE:
     user@user:~$ ssh datanode4 'cat >> /home/ubuntu/.ssh/authorized_keys'< /home/ubuntu/.ssh/id_rsa.pub
     ```
     
-    Per inizializzare i servizi di hadoop:
+    [OPZIONALE] Per rimuovere i log di info da spark (per rendere visibili i nostri)
     
-    ```console
-    user@user:~$ hdfs namenode -format
-    user@user:~$ $HADOOP_HOME/sbin/start-dfs.sh
-    user@user:~$ $HADOOP_HOME/sbin/start-yarn.sh
-    user@user:~$ $HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
-    ```
+    - Andare nella cartella spark/conf
+    - Copiare il contenuto del file log4j.properties.template in un nuovo file log4j.properties
+    - Scorrere sino "log4j.rootCategory=INFO, console" e digitare ERROR al posto di INFO
+    
 
 GUIDA ALL'ESECUZIONE DEL CODICE:
 
@@ -111,12 +109,12 @@ Nel master:
     
 - Per avviare il testing e l'analisi, da un terminale aperto nella home dell'utente corrente:
 ```console
-user@user:~$ ./spark/bin/spark-submit --master spark://IPMASTER:7077 /home/NOMEUTENTE/BigDataProject/RunTesting.py <undersampled, normalized>
+user@user:~$ ./spark/bin/spark-submit --master spark://IPMASTER:7077 /home/ubuntu/BigDataProject/RunTesting.py <undersampled, normalized>
 ```
 
 - Per avviare solo l'analisi:
 ```console
-user@user:~$ ./spark/bin/spark-submit --master spark://IPMASTER:7077 /home/NOMEMUTENTE/BigDataProject/RunAnalysis.py <undersampled, normalized>
+user@user:~$ ./spark/bin/spark-submit --master spark://IPMASTER:7077 /home/ubuntu/BigDataProject/RunAnalysis.py <undersampled, normalized>
 ```
 
 
