@@ -113,6 +113,13 @@ GUIDA ALL'ESECUZIONE DEL CODICE:
 !!! Verificare che tutti gli slave siano stati riconosciuti dal master, controllando su IPMASTER:8080 nel browser !!!
 
 Nel master:
+
+!!!Per scaricare il dataset completo normalizzato, digitare i seguenti comandi dalla home!!!:
+
+```console
+user@user:~$ cd BigDataProject/CSV_Sources/
+user@user:~$ wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1WT-AaihxiSRhevjxvfMNRIYXKtOXuskG' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1WT-AaihxiSRhevjxvfMNRIYXKtOXuskG" -O creditcard_normalized1.csv && rm -rf /tmp/cookies.txt
+```
     
 - Per avviare il testing e l'analisi, da un terminale aperto nella home dell'utente corrente:
 ```console
