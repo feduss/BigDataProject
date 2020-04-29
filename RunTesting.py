@@ -12,7 +12,7 @@ import RunAnalysis as ra
 def runTesting(used_dataset, dataset_code):
     verbose = False
     multiplier = 5
-    classifiers = 5
+    classifiers = 4
 
     metric_file = "classifiers_metrics"
     analysis_file = "results"
