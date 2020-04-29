@@ -8,6 +8,7 @@ import sys
 def runAnalysis(used_dataset, dataset_code):
     analysis_file = "results"
     ensemble_file = "ensembles_metrics"
+    num_classifiers = 4
 
     print("Loading...")
     time.sleep(10)
@@ -19,7 +20,7 @@ def runAnalysis(used_dataset, dataset_code):
 
     print("Esecuzione getBestResults")
     bestResults = mv.getBestResults(source_file=analysis_file + dataset_code,
-                                    num_classifiers=5)
+                                    num_classifiers=num_classifiers)
     print("BestResults ottenuti")
 
     print("Esecuzione getLabelsAndPredictions")
@@ -40,7 +41,7 @@ def runAnalysis(used_dataset, dataset_code):
 if __name__ == '__main__':
     dataset = ""
 
-    #sys.argv.append("undersampled")
+    sys.argv.append("normalized")
 
     if len(sys.argv) <= 1:
         print("--> Specificare il tipo di dataset da utilizzare.\n"
